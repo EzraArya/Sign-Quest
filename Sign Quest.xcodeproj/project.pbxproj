@@ -44,6 +44,7 @@
 				Features/Home,
 				Features/Leaderboard,
 				Features/Onboarding,
+				Features/Profile,
 				SignQuestUI/SignQuestUI,
 			);
 			target = 63841B2C2DB689DA00692236 /* Sign Quest */;
