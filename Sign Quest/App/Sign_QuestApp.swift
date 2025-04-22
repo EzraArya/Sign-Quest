@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import SignQuestUI
 
 @main
 struct Sign_QuestApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack {
+                ContentView()
+                    .applyBackground()
+            }
         }
     }
 }
