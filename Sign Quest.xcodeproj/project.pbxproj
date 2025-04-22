@@ -41,6 +41,7 @@
 			membershipExceptions = (
 				Features/Authentication,
 				Features/Dashboard,
+				Features/Home,
 				Features/Onboarding,
 				SignQuestUI/SignQuestUI,
 			);
