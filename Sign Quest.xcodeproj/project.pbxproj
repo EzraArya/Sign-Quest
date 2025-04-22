@@ -42,6 +42,7 @@
 				Features/Authentication,
 				Features/Dashboard,
 				Features/Home,
+				Features/Leaderboard,
 				Features/Onboarding,
 				SignQuestUI/SignQuestUI,
 			);
