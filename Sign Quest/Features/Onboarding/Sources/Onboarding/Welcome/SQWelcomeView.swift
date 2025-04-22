@@ -8,9 +8,12 @@
 import SwiftUI
 import SignQuestUI
 import Combine
+import Authentication
 
 public struct SQWelcomeView: View {
     @StateObject var viewModel = SQWelcomeViewModel()
+    @State private var navigateToIntroduction: Bool = false
+    @State private var navigateToSignIn: Bool = false
     
     public init() {}
     
@@ -22,7 +25,10 @@ public struct SQWelcomeView: View {
                 SQText(text: viewModel.title, font: .bold, color: .secondary, size: 24)
                     .frame(maxWidth: .infinity, alignment: .center)
                 SQButton(text: viewModel.buttonTitle, font: .bold, style: .default, size: 16) {
-                    print("Hello")
+                    navigateToSignIn.toggle()
+                }
+                .navigationDestination(isPresented: $navigateToSignIn) {
+                    SQLoginView()
                 }
             }
             
@@ -32,12 +38,16 @@ public struct SQWelcomeView: View {
                 SQText(text: viewModel.subtitle, font: .bold, color: .secondary, size: 24)
                     .frame(maxWidth: .infinity, alignment: .center)
                 SQButton(text: viewModel.buttonSubtitle, font: .bold, style: .secondary, size: 16) {
-                    print("Hello")
+                    navigateToIntroduction.toggle()
+                }
+                .navigationDestination(isPresented: $navigateToIntroduction) {
+                    SQIntroductionView()
                 }
             }
             
             Spacer()
         }
         .padding(.horizontal, 24)
+        .applyBackground()
     }
 }
