@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SignQuestUI
-import Onboarding
 
 public struct SQProfileView: View {
     @State private var email: String = "email@gmail.com"
