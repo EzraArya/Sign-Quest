@@ -12,6 +12,7 @@ public struct SQLoginView: View {
     @StateObject private var viewModel = SQLoginViewModel()
     @FocusState private var isEmailActive: Bool
     @FocusState private var isPasswordActive: Bool
+    @State private var navigateToGreeting: Bool = false
     @Environment(\.dismiss) private var dismiss
 
     public init() {}
@@ -45,6 +46,12 @@ public struct SQLoginView: View {
             Spacer()
             SQButton(text: "Sign In", font: .bold, style: .default, size: 16) {
                 viewModel.validateInput(isEmailActive: isEmailActive, isPasswordActive: isPasswordActive)
+                if !viewModel.hasError {
+                    navigateToGreeting = true
+                }
+            }
+            .navigationDestination(isPresented: $navigateToGreeting) {
+                SQGreetView()
             }
         }
         .padding(.top, 16)
