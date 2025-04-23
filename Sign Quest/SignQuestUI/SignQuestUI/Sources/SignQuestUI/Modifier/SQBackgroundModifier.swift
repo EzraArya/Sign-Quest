@@ -9,9 +9,10 @@ import SwiftUI
 
 public struct SQBackgroundModifier: ViewModifier {
     public func body(content: Content) -> some View {
-        content
-            .background(SQColor.background.color
+        ZStack {
+            SQColor.background.color
                 .ignoresSafeArea()
-            )
+            content
+        }
     }
 }
