@@ -10,6 +10,8 @@ import SignQuestUI
 import Authentication
 
 public struct SQIntroductionView: View {
+    let coordinator: SQOnboardingCoordinator
+    
     @State private var currentTab = 0
     @StateObject private var viewModel = SQIntroductionViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -20,8 +22,10 @@ public struct SQIntroductionView: View {
     
     @State private var navigateToRegistration = false
     
-    public init() {}
-
+    public init(coordinator: SQOnboardingCoordinator) {
+        self.coordinator = coordinator
+    }
+    
     public var body: some View {
         VStack {
             TabView(selection: $currentTab) {
@@ -48,17 +52,13 @@ public struct SQIntroductionView: View {
                 if currentTab < viewModel.pages.count - 1 {
                     currentTab += 1
                 } else {
-                    print("Introduction completed")
-                    navigateToRegistration.toggle()
+                    coordinator.finishOnboarding()
                 }
             }
         }
         .padding(.horizontal, 24)
         .applyBackground()
         .navigationBarBackButtonHidden(true)
-        .navigationDestination(isPresented: $navigateToRegistration) {
-            SQRegisterView()
-        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
