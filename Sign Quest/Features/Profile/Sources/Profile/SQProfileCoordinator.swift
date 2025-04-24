@@ -12,7 +12,7 @@ public class SQProfileCoordinator: ProfileCoordinator {
     private weak var appCoordinator: SQAppCoordinator?
     private var navigationState = NavigationState()
     
-    public var tabIcon: String = "house"
+    public var tabIcon: String = "person"
     
     public init(appCoordinator: SQAppCoordinator) {
         self.appCoordinator = appCoordinator
@@ -37,11 +37,13 @@ public class SQProfileCoordinator: ProfileCoordinator {
     
     @MainActor
     public func logOut() {
+        UserDefaults.standard.set(false, forKey: "isLoggedIn")
         appCoordinator?.startOnboarding()
     }
     
     @MainActor
     public func deleteAccount() {
+        UserDefaults.standard.set(false, forKey: "isLoggedIn")
         appCoordinator?.startOnboarding()
     }
         
@@ -63,3 +65,4 @@ public class SQProfileCoordinator: ProfileCoordinator {
         }
     }
 }
+
