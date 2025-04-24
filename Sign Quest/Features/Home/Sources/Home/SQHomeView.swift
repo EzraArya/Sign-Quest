@@ -9,9 +9,12 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQHomeView: View {
+    let coordinator: SQHomeCoordinator
     public var user: String = "User"
     
-    public init() {}
+    public init(coordinator: SQHomeCoordinator) {
+        self.coordinator = coordinator
+    }
     
     public var body: some View {
         VStack {
@@ -23,7 +26,7 @@ public struct SQHomeView: View {
                 
                 SQBanner(section: "Section 1", title: "Alphabet")
                 
-                LevelChatBubbleView()
+                LevelButton(levelNumber: 1, levelTitle: "Basic Phrases")
             }
             Spacer()
         }
@@ -33,100 +36,125 @@ public struct SQHomeView: View {
         .applyBackground()
     }
 }
-
-struct LevelChatBubbleView: View {
-    @State private var showChat = false
-
+struct LevelButton: View {
+    @State private var showPopup = false
+    let levelNumber: Int
+    let levelTitle: String
+    
     var body: some View {
         ZStack {
-            VStack(spacing: 10) {
-                if showChat {
-                    ChatBubble {
-                        VStack(spacing: 10) {
-                            Text("Ready to start Level 1?")
-                                .font(.subheadline)
-                                .padding(.bottom, 5)
-
-                            HStack {
-                                Button("Start") {
-                                    print("Start tapped")
-                                    showChat = false
-                                }
-                                .padding(.horizontal)
-                                .padding(.vertical, 6)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-
-                                Button("Cancel") {
-                                    showChat = false
-                                }
-                                .foregroundColor(.red)
-                            }
-                        }
-                        .padding()
-                    }
-                    .transition(.scale)
-                    .animation(.easeInOut, value: showChat)
+            // The level button stays fixed at its position
+            Button {
+                withAnimation(.spring()) {
+                    showPopup.toggle()
                 }
-
-                Button(action: {
-                    withAnimation {
-                        showChat.toggle()
-                    }
-                }) {
-                    VStack {
-                        Text("1")
-                            .font(.title)
-                            .bold()
-                            .foregroundColor(.white)
-                        Text("Level")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                    }
-                    .frame(width: 80, height: 80)
-                    .background(Color.green)
-                    .clipShape(Circle())
-                    .shadow(radius: 4)
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 70, height: 70)
+                        .shadow(radius: 3)
+                    
+                    Text("\(levelNumber)")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
                 }
             }
+            
+            // Popup is in an overlay so it doesn't affect button layout
+            if showPopup {
+                GeometryReader { geometry in
+                    ChatboxPopup(levelNumber: levelNumber, levelTitle: levelTitle) {
+                        withAnimation(.spring()) {
+                            showPopup = false
+                        }
+                    } startLevel: {
+                        print("Starting level \(levelNumber)...")
+                        withAnimation(.spring()) {
+                            showPopup = false
+                        }
+                        // Add your logic to start the level here
+                    }
+                    .position(
+                        x: geometry.size.width/2 + 145,
+                        y: geometry.size.height/2
+                    )
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
         }
+        // Fixed frame for the button container only
+        .frame(width: 70, height: 70)
     }
 }
 
-// MARK: - Chat Bubble Shape
-
-struct ChatBubble<Content: View>: View {
-    var content: () -> Content
-
+struct ChatboxPopup: View {
+    let levelNumber: Int
+    let levelTitle: String
+    let closeAction: () -> Void
+    let startLevel: () -> Void
+    
     var body: some View {
-        VStack(spacing: 0) {
-            content()
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    Triangle()
-                        .fill(Color.white)
-                        .frame(width: 20, height: 10)
-                        .rotationEffect(.degrees(180))
-                        .offset(y: 5),
-                    alignment: .bottom
-                )
-                .shadow(radius: 5)
+        HStack(alignment: .center, spacing: 0) {
+            // Triangle pointer
+            ChatboxPointer()
+                .fill(Color.white)
+                .frame(width: 15, height: 20)
+                .shadow(color: Color.black.opacity(0.1), radius: 1)
+                .zIndex(1)
+            
+            // Chatbox content
+            VStack(spacing: 12) {
+                // Header
+                HStack {
+                    Text("Level \(levelNumber)")
+                        .font(.system(size: 18, weight: .bold))
+                    
+                    Spacer()
+                    
+                    Button {
+                        closeAction()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+                
+                Text(levelTitle)
+                    .font(.system(size: 16))
+                    .multilineTextAlignment(.center)
+                
+                Button {
+                    startLevel()
+                } label: {
+                    Text("Start")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 140, height: 40)
+                        .background(Color.green)
+                        .cornerRadius(20)
+                }
+                .padding(.top, 5)
+            }
+            .padding(15)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white)
+                    .shadow(color: Color.black.opacity(0.2), radius: 5)
+            )
+            .frame(width: 200)
         }
     }
 }
 
-// MARK: - Triangle Shape for Bubble Tail
-
-struct Triangle: Shape {
+// Custom shape for chatbox pointer - pointing left toward the button
+struct ChatboxPointer: Shape {
     func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: rect.midX, y: rect.maxY))   // bottom center
-            path.addLine(to: CGPoint(x: rect.minX, y: rect.minY)) // left
-            path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY)) // right
-            path.closeSubpath()
-        }
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
     }
 }
-
