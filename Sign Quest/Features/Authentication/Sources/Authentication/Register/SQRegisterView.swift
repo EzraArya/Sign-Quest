@@ -36,7 +36,7 @@ public struct SQRegisterView: View {
             HStack {
                 Button {
                     if currentTab == 0 {
-                        dismiss()
+                        coordinator.showWelcomeView()
                     } else {
                         currentTab -= 1
                         progressAmount -= 25

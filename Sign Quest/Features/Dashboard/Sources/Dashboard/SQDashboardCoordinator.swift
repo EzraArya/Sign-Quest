@@ -32,7 +32,7 @@ public class SQDashboardCoordinator: DashboardCoordinator {
     
     @MainActor
     public func showDashboardTabView() -> AnyView {
-        guard let appCoordinator = appCoordinator else {
+        guard appCoordinator != nil else {
             return AnyView(EmptyView())
         }
         

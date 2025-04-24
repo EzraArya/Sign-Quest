@@ -26,6 +26,7 @@ public class SQOnboardingCoordinator: OnboardingCoordinator {
     }
     
     public func showIntroductionView() {
+        appCoordinator?.showNavigationBar()
         navigationState.currentScreen = .introduction
     }
     

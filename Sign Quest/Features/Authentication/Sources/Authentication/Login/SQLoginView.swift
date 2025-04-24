@@ -62,7 +62,7 @@ public struct SQLoginView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()
+                    coordinator.showWelcomeView()
                 } label: {
                     Image(systemName: "chevron.left")
                         .bold()

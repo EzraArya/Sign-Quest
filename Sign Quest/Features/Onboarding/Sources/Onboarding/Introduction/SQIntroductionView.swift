@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SignQuestUI
-import Authentication
 
 public struct SQIntroductionView: View {
     let coordinator: SQOnboardingCoordinator
@@ -60,10 +59,10 @@ public struct SQIntroductionView: View {
         .applyBackground()
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     if currentTab == 0 {
-                        dismiss()
+                        coordinator.showWelcomeView()
                     } else {
                         currentTab -= 1
                     }
@@ -72,6 +71,12 @@ public struct SQIntroductionView: View {
                         .bold()
                         .foregroundColor(SQColor.secondary.color)
                 }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                SQText(text: "Skip", font: .bold, color: .secondary, size: 16)
+                    .onTapGesture {
+                        coordinator.finishOnboarding()
+                    }
             }
         }
     }

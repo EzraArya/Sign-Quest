@@ -31,11 +31,17 @@ public class SQAuthenticationCoordinator: AuthenticationCoordinator {
         SQAuthenticationContainerView(coordinator: self, navigationState: navigationState)
     }
     
-    public func showLoginView() {
+    @MainActor
+    public func showWelcomeView() {
+        appCoordinator?.startOnboarding()
+    }
+    
+    @MainActor public func showLoginView() {
         navigationState.currentScreen = .login
     }
     
     public func showRegisterView() {
+        appCoordinator?.hideNavigationBar()
         navigationState.currentScreen = .register
     }
     
@@ -44,6 +50,7 @@ public class SQAuthenticationCoordinator: AuthenticationCoordinator {
     }
     
     public func finishAuthentication() {
+        UserDefaults.standard.set(true, forKey: "isLoggedIn")
         appCoordinator?.startMainFlow()
     }
 }

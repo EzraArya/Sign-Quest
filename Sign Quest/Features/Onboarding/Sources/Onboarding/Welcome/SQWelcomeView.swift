@@ -8,7 +8,6 @@
 import SwiftUI
 import SignQuestUI
 import Combine
-import Authentication
 
 public struct SQWelcomeView: View {
     let coordinator: SQOnboardingCoordinator

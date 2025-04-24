@@ -24,9 +24,11 @@ struct Sign_QuestApp: App {
     }
 }
 
+@MainActor
 class AppState: ObservableObject {
-    let coordinator = AppCoordinator()
+    let coordinator = AppCoordinator.create()
 }
+
 
 struct CoordinatorHostingView: UIViewControllerRepresentable {
     let coordinator: AppCoordinator

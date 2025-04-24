@@ -15,7 +15,12 @@ import Home
 import Leaderboard
 import Profile
 
+@MainActor
 public class AppCoordinator: SQAppCoordinator {
+    public static func create() -> AppCoordinator {
+        AppCoordinator(navigationController: UINavigationController())
+    }
+    
     public lazy var onboardingCoordinator: any SignQuestInterfaces.OnboardingCoordinator = SQOnboardingCoordinator(appCoordinator: self)
     
     public lazy var authenticationCoordinator: any SignQuestInterfaces.AuthenticationCoordinator = SQAuthenticationCoordinator(appCoordinator: self)
@@ -27,12 +32,12 @@ public class AppCoordinator: SQAppCoordinator {
     public lazy var profileCoordinator: any ProfileCoordinator = SQProfileCoordinator(appCoordinator: self)
     public lazy var dashboardCoordinator: any DashboardCoordinator = SQDashboardCoordinator(appCoordinator: self)
     
-    public init(navigationController: UINavigationController = UINavigationController()) {
+    private init(navigationController: UINavigationController) {
         self.navigationController = navigationController
         navigationController.isNavigationBarHidden = true
     }
     
-    @MainActor public func start() {
+    public func start() {
         if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
             if UserDefaults.standard.bool(forKey: "isLoggedIn") {
                 startMainFlow()
@@ -44,13 +49,13 @@ public class AppCoordinator: SQAppCoordinator {
         }
     }
     
-    @MainActor public func startOnboarding() {
+    public func startOnboarding() {
         let rootView = onboardingCoordinator.makeRootView()
         setRootView(AnyView(rootView))
         onboardingCoordinator.showWelcomeView()
     }
     
-    @MainActor public func startAuthentication(showRegister: Bool = false) {
+    public func startAuthentication(showRegister: Bool = false) {
         let rootView = authenticationCoordinator.makeRootView()
         setRootView(AnyView(rootView))
         
@@ -61,12 +66,20 @@ public class AppCoordinator: SQAppCoordinator {
         }
     }
     
-    @MainActor public func startMainFlow() {
+    public func hideNavigationBar() {
+        navigationController.isNavigationBarHidden = true
+    }
+
+    public func showNavigationBar() {
+        navigationController.isNavigationBarHidden = false
+    }
+    
+    public func startMainFlow() {
         let rootView = dashboardCoordinator.makeRootView()
         setRootView(AnyView(rootView))
     }
     
-    @MainActor private func setRootView<V: View>(_ view: V) {
+    private func setRootView<V: View>(_ view: V) {
         let hostingController = UIHostingController(rootView: view)
         navigationController.setViewControllers([hostingController], animated: true)
     }

@@ -7,55 +7,66 @@
 
 import SwiftUI
 
+@MainActor
 public protocol SQCoordinator: AnyObject {
     var navigationController: UINavigationController { get }
     @MainActor func start()
 }
 
+@MainActor
 public protocol ViewCoordinator: AnyObject {
     associatedtype RootView: View
     @MainActor func makeRootView() -> RootView
 }
 
+@MainActor
 public protocol OnboardingCoordinator: ViewCoordinator {
     func showWelcomeView()
     func showIntroductionView()
-    @MainActor func finishOnboarding()
-    @MainActor func showLoginView()
+    func finishOnboarding()
+    func showLoginView()
 }
 
+@MainActor
 public protocol AuthenticationCoordinator: ViewCoordinator {
     func showLoginView()
     func showRegisterView()
     func showGreetingView()
-    @MainActor func finishAuthentication()
+    func showWelcomeView()
+    func finishAuthentication()
 }
 
+@MainActor
 public protocol TabCoordinator: ViewCoordinator {
     var tabIcon: String { get }
 }
 
+@MainActor
 public protocol DashboardCoordinator: ViewCoordinator {
     var tabCoordinators: [any TabCoordinator] { get }
-    @MainActor func showDashboardTabView() -> AnyView
+    func showDashboardTabView() -> AnyView
 }
 
+@MainActor
 public protocol HomeCoordinator: TabCoordinator {
     func showHomeView()
 }
 
+@MainActor
 public protocol LeaderboardCoordinator: TabCoordinator {
     func showLeaderboardView()
 }
 
+@MainActor
 public protocol ProfileCoordinator: TabCoordinator {
     func showProfileView()
     func showEditProfileView()
     func showEditPasswordView()
-    @MainActor func logOut()
-    @MainActor func deleteAccount()
+    func logOut()
+    func deleteAccount()
 }
 
+@MainActor
 public protocol SQAppCoordinator: SQCoordinator {
     var onboardingCoordinator: any OnboardingCoordinator { get }
     var authenticationCoordinator: any AuthenticationCoordinator { get }
@@ -64,7 +75,9 @@ public protocol SQAppCoordinator: SQCoordinator {
     var profileCoordinator: any ProfileCoordinator { get }
     var dashboardCoordinator: any DashboardCoordinator { get }
     
-    @MainActor func startOnboarding()
-    @MainActor func startAuthentication(showRegister: Bool)
-    @MainActor func startMainFlow()
+    func startOnboarding()
+    func startAuthentication(showRegister: Bool)
+    func startMainFlow()
+    func hideNavigationBar()
+    func showNavigationBar()
 }
