@@ -9,6 +9,8 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQRegisterView: View {
+    let coordinator: SQAuthenticationCoordinator
+    
     @State private var currentTab = 0
     @State private var age = ""
     @State private var firstName = ""
@@ -22,11 +24,12 @@ public struct SQRegisterView: View {
     @State private var namePageValid = false
     @State private var emailPageValid = false
     @State private var passwordPageValid = false
-    @State private var navigateToGreeting = false
     
     @State private var progressAmount = 25.0
     
-    public init() {}
+    public init(coordinator: SQAuthenticationCoordinator) {
+        self.coordinator = coordinator
+    }
     
     public var body: some View {
         VStack(spacing: 0) {
@@ -107,7 +110,7 @@ public struct SQRegisterView: View {
                         }
                     case 3:
                         if passwordPageValid {
-                            navigateToGreeting.toggle()
+                            coordinator.showGreetingView()
                         }
                     default:
                         break
@@ -118,8 +121,5 @@ public struct SQRegisterView: View {
         }
         .applyBackground()
         .toolbar(.hidden)
-        .navigationDestination(isPresented: $navigateToGreeting) {
-            SQGreetView()
-        }
     }
 }

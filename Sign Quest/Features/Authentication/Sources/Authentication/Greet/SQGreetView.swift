@@ -7,12 +7,13 @@
 
 import SwiftUI
 import SignQuestUI
-import Dashboard
 
 public struct SQGreetView: View {
-    @State private var navigateToDashboard: Bool = false
+    let coordinator: SQAuthenticationCoordinator
 
-    public init() {}
+    public init(coordinator: SQAuthenticationCoordinator) {
+        self.coordinator = coordinator
+    }
 
     public var body: some View {
         VStack(spacing: 16) {
@@ -22,10 +23,7 @@ public struct SQGreetView: View {
         .applyBackground()
         .task {
             try? await Task.sleep(nanoseconds: 800_000_000)
-            navigateToDashboard = true
-        }
-        .navigationDestination(isPresented: $navigateToDashboard) {
-            SQDashboardView()
+            coordinator.finishAuthentication()
         }
     }
 }
