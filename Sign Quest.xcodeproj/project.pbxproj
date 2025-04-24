@@ -14,6 +14,7 @@
 		63841BA12DB6965800692236 /* Onboarding in Frameworks */ = {isa = PBXBuildFile; productRef = 63841BA02DB6965800692236 /* Onboarding */; };
 		63841BA42DB6966A00692236 /* Authentication in Frameworks */ = {isa = PBXBuildFile; productRef = 63841BA32DB6966A00692236 /* Authentication */; };
 		63AF74062DB9524300DED239 /* SignQuestUI in Frameworks */ = {isa = PBXBuildFile; productRef = 63AF74052DB9524300DED239 /* SignQuestUI */; };
+		63C07E9B2DBA23C100829842 /* SignQuestInterfaces in Frameworks */ = {isa = PBXBuildFile; productRef = 63C07E9A2DBA23C100829842 /* SignQuestInterfaces */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		63841B9D2DB6960D00692236 /* Exceptions for "Sign Quest" folder in "Sign Quest" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Packages/SignQuestInterfaces,
 				Core/Packages/SignQuestUI,
 				Features/Authentication,
 				Features/Dashboard,
@@ -83,6 +85,7 @@
 			files = (
 				6368101D2DB7F470007A482C /* Profile in Frameworks */,
 				63AF74062DB9524300DED239 /* SignQuestUI in Frameworks */,
+				63C07E9B2DBA23C100829842 /* SignQuestInterfaces in Frameworks */,
 				636810172DB7F470007A482C /* Dashboard in Frameworks */,
 				63841BA42DB6966A00692236 /* Authentication in Frameworks */,
 				636810192DB7F470007A482C /* Home in Frameworks */,
@@ -155,6 +158,7 @@
 				6368101A2DB7F470007A482C /* Leaderboard */,
 				6368101C2DB7F470007A482C /* Profile */,
 				63AF74052DB9524300DED239 /* SignQuestUI */,
+				63C07E9A2DBA23C100829842 /* SignQuestInterfaces */,
 			);
 			productName = "Sign Quest";
 			productReference = 63841B2D2DB689DA00692236 /* Sign Quest.app */;
@@ -242,6 +246,7 @@
 				63841B9F2DB6965800692236 /* XCLocalSwiftPackageReference "Sign Quest/Features/Onboarding" */,
 				63841BA22DB6966A00692236 /* XCLocalSwiftPackageReference "Sign Quest/Features/Authentication" */,
 				63AF74042DB9524300DED239 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestUI" */,
+				63C07E992DBA23C100829842 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestInterfaces" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63841B2E2DB689DA00692236 /* Products */;
@@ -624,6 +629,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "Sign Quest/Core/Packages/SignQuestUI";
 		};
+		63C07E992DBA23C100829842 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestInterfaces" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "Sign Quest/Core/Packages/SignQuestInterfaces";
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -654,6 +663,10 @@
 		63AF74052DB9524300DED239 /* SignQuestUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SignQuestUI;
+		};
+		63C07E9A2DBA23C100829842 /* SignQuestInterfaces */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SignQuestInterfaces;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

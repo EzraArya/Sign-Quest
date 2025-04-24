@@ -2,20 +2,38 @@
 //  Sign_QuestApp.swift
 //  Sign Quest
 //
-//  Created by Ezra Arya Wijaya on 21/04/25.
-//
 
 import SwiftUI
 import SignQuestUI
 
 @main
 struct Sign_QuestApp: App {
+    @StateObject private var appState = AppState()
+    
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                ContentView()
-                    .applyBackground()
-            }
+            CoordinatorHostingView(coordinator: appState.coordinator)
+                .onAppear {
+                    Task { @MainActor in
+                        appState.coordinator.start()
+                    }
+                }
+                .ignoresSafeArea()
+                .applyBackground()
         }
     }
+}
+
+class AppState: ObservableObject {
+    let coordinator = AppCoordinator()
+}
+
+struct CoordinatorHostingView: UIViewControllerRepresentable {
+    let coordinator: AppCoordinator
+    
+    func makeUIViewController(context: Context) -> UINavigationController {
+        return coordinator.navigationController
+    }
+    
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
 }
