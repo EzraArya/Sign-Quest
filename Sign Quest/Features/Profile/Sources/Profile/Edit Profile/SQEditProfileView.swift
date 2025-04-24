@@ -9,16 +9,16 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQEditProfileView: View {
+    let coordinator: SQProfileCoordinator
+    
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
-    
-    @State private var navigateToChangePassword: Bool = false
-    
-    @Environment(\.dismiss) private var dismiss
-    
-    public init() {}
+            
+    public init(coordinator: SQProfileCoordinator) {
+        self.coordinator = coordinator
+    }
     
     public var body: some View {
         VStack(spacing: 20) {
@@ -27,13 +27,13 @@ public struct SQEditProfileView: View {
             SQLabelTextField(label: "Email", title: "Email", text: $email, placeholder: "Enter your Email")
             
             SQButton(text: "Change Password", font: .bold, style: .muted, size: 16) {
-                navigateToChangePassword.toggle()
+                coordinator.showEditPasswordView()
             }
             
             Spacer()
             
             SQButton(text: "Save", font: .bold, style: .default, size: 16) {
-                dismiss()
+                coordinator.navigateBack()
             }
         }
         .padding(.top, 24)
@@ -43,7 +43,7 @@ public struct SQEditProfileView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()
+                    coordinator.navigateBack()
                 } label: {
                     Image(systemName: "chevron.left")
                         .bold()
@@ -53,9 +53,6 @@ public struct SQEditProfileView: View {
             ToolbarItem(placement: .principal) {
                 SQText(text: "Profile", font: .bold, color: .secondary, size: 24)
             }
-        }
-        .navigationDestination(isPresented: $navigateToChangePassword) {
-            SQChangePasswordView()
         }
     }
 }

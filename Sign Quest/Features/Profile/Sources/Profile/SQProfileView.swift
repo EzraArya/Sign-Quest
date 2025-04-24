@@ -9,17 +9,15 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQProfileView: View {
+    let coordinator: SQProfileCoordinator
+    
     @State private var email: String = "email@gmail.com"
     @State private var joinDate: String = "9th December"
     
-    @State private var navigateToEditProfile: Bool = false
-    @State private var signOut: Bool = false
-    @State private var deleteAccount: Bool = false
     @State private var showDeleteAlert: Bool = false
-    @Binding var profilePath: NavigationPath
 
-    public init(profilePath: Binding<NavigationPath>) {
-        self._profilePath = profilePath
+    public init(coordinator: SQProfileCoordinator) {
+        self.coordinator = coordinator
     }
     
     public var body: some View {
@@ -53,7 +51,7 @@ public struct SQProfileView: View {
                             SQText(text: "\(email) ◦ \(joinDate)", font: .regular, color: .placeholder, size: 14)
                         }
                         SQButton(text: "Edit Profile", font: .bold, style: .default, size: 16) {
-                            navigateToEditProfile.toggle()
+                            coordinator.showEditProfileView()
                         }
                     }
                     
@@ -74,8 +72,7 @@ public struct SQProfileView: View {
                     
                     VStack(spacing: 16) {
                         SQButton(text: "Logout", font: .bold, style: .secondary, size: 16) {
-                            profilePath = NavigationPath()
-                            signOut.toggle()
+                            coordinator.logOut()
                         }
                         SQButton(text: "Delete Account", font: .bold, style: .danger, size: 16) {
                             showDeleteAlert.toggle()
@@ -91,20 +88,11 @@ public struct SQProfileView: View {
                 SQProfileDeleteAlertView(
                     isPresented: $showDeleteAlert,
                     onDelete: {
-                        deleteAccount.toggle()
+                        coordinator.deleteAccount()
                     }
                 )
             }
         }
         .ignoresSafeArea(edges: .top)
-        .navigationDestination(isPresented: $navigateToEditProfile) {
-            SQEditProfileView()
-        }
-        .navigationDestination(isPresented: $signOut) {
-            Text("Hello")
-        }
-        .navigationDestination(isPresented: $deleteAccount) {
-            Text("Hello")
-        }
     }
 }
