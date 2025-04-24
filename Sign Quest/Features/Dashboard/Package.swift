@@ -16,8 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../SignQuestUI"),
-        .package(path: "../Home"),
-        .package(path: "../Profile"),
+        .package(path: "../SignQuestInterfaces")
     ],
 
     targets: [
@@ -25,7 +24,7 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Dashboard",
-            dependencies: ["SignQuestUI", "Home", "Profile"]
+            dependencies: ["SignQuestUI", "SignQuestInterfaces"]
         ),
         .testTarget(
             name: "DashboardTests",

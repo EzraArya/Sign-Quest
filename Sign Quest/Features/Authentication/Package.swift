@@ -16,14 +16,14 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../SignQuestUI"),
-        .package(path: "../Dashboard")
+        .package(path: "../SignQuestInterfaces")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Authentication",
-            dependencies: ["SignQuestUI", "Dashboard"]
+            dependencies: ["SignQuestUI", "SignQuestInterfaces"]
         ),
         .testTarget(
             name: "AuthenticationTests",
