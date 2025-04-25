@@ -25,5 +25,6 @@ public struct SQBanner: View {
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
         .background(SQColor.primary.color)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .boxShadow(color: SQColor.accent)
     }
 }
