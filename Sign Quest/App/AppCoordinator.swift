@@ -14,12 +14,14 @@ import Dashboard
 import Home
 import Leaderboard
 import Profile
+import Play
 
 public enum AppState {
     case onboarding
     case mainFlow
     case login
     case register
+    case play
 }
 
 @MainActor
@@ -44,6 +46,10 @@ public class AppCoordinator: AppCoordinatorProtocol {
         }
     }
     
+    public func startPlay() {
+        appState = .play
+    }
+    
     @ViewBuilder
     public func makeRootView() -> some View {
         switch appState {
@@ -61,6 +67,8 @@ public class AppCoordinator: AppCoordinatorProtocol {
                     appCoordinator: self
                 )
             )
+        case .play:
+            SQPlayCoordinatorView(appCoordinator: self)
         }
     }
 }
