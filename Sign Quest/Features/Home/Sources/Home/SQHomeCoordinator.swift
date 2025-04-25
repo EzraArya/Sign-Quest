@@ -8,30 +8,37 @@
 import SwiftUI
 import SignQuestInterfaces
 
-public class SQHomeCoordinator: HomeCoordinator {
-    private weak var appCoordinator: SQAppCoordinator?
-    private var navigationState = NavigationState()
+public enum SQHomeScreenType: Hashable, Identifiable {
+    case home
     
-    public var tabIcon: String = "house"
+    public var id: Self { return self }
+}
+
+public class SQHomeCoordinator: NavigationCoordinatorProtocol {
+    public typealias ScreenType = SQHomeScreenType
     
-    public init(appCoordinator: SQAppCoordinator) {
-        self.appCoordinator = appCoordinator
+    @Published public var path: NavigationPath = NavigationPath()
+    
+    public func push(_ screen: SQHomeScreenType) {
+        path.append(screen)
+    }
+    
+    public func pop() {
+        if !path.isEmpty {
+            path.removeLast()
+        }
+    }
+    
+    public func popToRoot() {
+        path = NavigationPath()
     }
     
     @MainActor
-    public func makeRootView() -> some View {
-        return SQHomeContainerView(coordinator: self, navigationState: navigationState)
-    }
-    
-    public func showHomeView() {
-        navigationState.currentScreen = .dashboard
-    }
-        
-    class NavigationState: ObservableObject {
-        enum Screen {
-            case dashboard
+    @ViewBuilder
+    public func build(_ screen: ScreenType) -> some View {
+        switch screen {
+        case .home:
+            SQHomeView()
         }
-        
-        @Published var currentScreen: Screen = .dashboard
     }
 }

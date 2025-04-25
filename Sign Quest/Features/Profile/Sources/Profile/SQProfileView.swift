@@ -9,16 +9,14 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQProfileView: View {
-    let coordinator: SQProfileCoordinator
+    @EnvironmentObject var coordinator: SQProfileCoordinator
     
     @State private var email: String = "email@gmail.com"
     @State private var joinDate: String = "9th December"
     
     @State private var showDeleteAlert: Bool = false
 
-    public init(coordinator: SQProfileCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
     
     public var body: some View {
         ZStack {
@@ -51,7 +49,7 @@ public struct SQProfileView: View {
                             SQText(text: "\(email) ◦ \(joinDate)", font: .regular, color: .placeholder, size: 14)
                         }
                         SQButton(text: "Edit Profile", font: .bold, style: .default, size: 16) {
-                            coordinator.showEditProfileView()
+                            coordinator.push(.editProfile)
                         }
                     }
                     
@@ -72,7 +70,7 @@ public struct SQProfileView: View {
                     
                     VStack(spacing: 16) {
                         SQButton(text: "Logout", font: .bold, style: .secondary, size: 16) {
-                            coordinator.logOut()
+                            coordinator.navigateToWelcome()
                         }
                         SQButton(text: "Delete Account", font: .bold, style: .danger, size: 16) {
                             showDeleteAlert.toggle()
@@ -88,7 +86,7 @@ public struct SQProfileView: View {
                 SQProfileDeleteAlertView(
                     isPresented: $showDeleteAlert,
                     onDelete: {
-                        coordinator.deleteAccount()
+                        coordinator.navigateToWelcome()
                     }
                 )
             }

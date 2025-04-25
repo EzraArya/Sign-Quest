@@ -10,15 +10,10 @@ import SignQuestUI
 import Combine
 
 public struct SQWelcomeView: View {
-    let coordinator: SQOnboardingCoordinator
-    
+    @EnvironmentObject private var coordinator: SQOnboardingCoordinator
     @StateObject var viewModel = SQWelcomeViewModel()
-    @State private var navigateToIntroduction: Bool = false
-    @State private var navigateToSignIn: Bool = false
     
-    public init(coordinator: SQOnboardingCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
     
     public var body: some View {
         VStack(spacing: 20) {
@@ -28,7 +23,9 @@ public struct SQWelcomeView: View {
                 SQText(text: viewModel.title, font: .bold, color: .secondary, size: 24)
                     .frame(maxWidth: .infinity, alignment: .center)
                 SQButton(text: viewModel.buttonTitle, font: .bold, style: .default, size: 16) {
-                    coordinator.showLoginView()
+                    Task { @MainActor in
+                        coordinator.showAuthentication(isLogin: true)
+                    }
                 }
             }
             
@@ -38,7 +35,7 @@ public struct SQWelcomeView: View {
                 SQText(text: viewModel.subtitle, font: .bold, color: .secondary, size: 24)
                     .frame(maxWidth: .infinity, alignment: .center)
                 SQButton(text: viewModel.buttonSubtitle, font: .bold, style: .secondary, size: 16) {
-                    coordinator.showIntroductionView()
+                    coordinator.push(.introduction)
                 }
             }
             Spacer()

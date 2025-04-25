@@ -23,6 +23,8 @@ public enum SQColor {
     case alertBackground
     case red
     case cream
+    case blue
+    case green
     
     public var color: Color {
         switch self {
@@ -58,6 +60,10 @@ public enum SQColor {
             return Color("Red", bundle: .module)
         case .cream:
             return Color("Cream", bundle: .module)
+        case .blue:
+            return Color("Blue", bundle: .module)
+        case .green:
+            return Color("Green", bundle: .module)
         }
     }
 }

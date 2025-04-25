@@ -8,30 +8,36 @@
 import SwiftUI
 import SignQuestInterfaces
 
-public class SQLeaderboardCoordinator: LeaderboardCoordinator {
-    private weak var appCoordinator: SQAppCoordinator?
-    private var navigationState = NavigationState()
+public enum SQLeaderboardScreenType: Hashable, Identifiable {
+    case leaderboard
     
-    public var tabIcon: String = "trophy"
+    public var id: Self { return self }
+}
+
+public class SQLeaderboardCoordinator: NavigationCoordinatorProtocol {
+    public typealias ScreenType = SQLeaderboardScreenType
+    @Published public var path: NavigationPath = NavigationPath()
     
-    public init(appCoordinator: SQAppCoordinator) {
-        self.appCoordinator = appCoordinator
+    public func push(_ screen: SQLeaderboardScreenType) {
+        path.append(screen)
+    }
+
+    public func pop() {
+        if !path.isEmpty {
+            path.removeLast()
+        }
+    }
+    
+    public func popToRoot() {
+        path = NavigationPath()
     }
     
     @MainActor
-    public func makeRootView() -> some View {
-        return SQLeaderboardContainerView(coordinator: self, navigationState: navigationState)
-    }
-    
-    public func showLeaderboardView() {
-        navigationState.currentScreen = .dashboard
-    }
-        
-    class NavigationState: ObservableObject {
-        enum Screen {
-            case dashboard
+    @ViewBuilder
+    public func build(_ screen: ScreenType) -> some View {
+        switch screen {
+        case .leaderboard:
+            SQLeaderboardView()
         }
-        
-        @Published var currentScreen: Screen = .dashboard
     }
 }

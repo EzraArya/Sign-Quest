@@ -9,16 +9,14 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQLoginView: View {
-    let coordinator: SQAuthenticationCoordinator
+    @EnvironmentObject var coordinator: SQAuthenticationCoordinator
 
     @StateObject private var viewModel = SQLoginViewModel()
     @FocusState private var isEmailActive: Bool
     @FocusState private var isPasswordActive: Bool
     @Environment(\.dismiss) private var dismiss
 
-    public init(coordinator: SQAuthenticationCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
     
     public var body: some View {
         VStack {
@@ -50,7 +48,7 @@ public struct SQLoginView: View {
             SQButton(text: "Sign In", font: .bold, style: .default, size: 16) {
                 viewModel.validateInput(isEmailActive: isEmailActive, isPasswordActive: isPasswordActive)
                 if !viewModel.hasError {
-                    coordinator.showGreetingView()
+                    coordinator.push(.greet)
                 }
             }
 
@@ -62,7 +60,9 @@ public struct SQLoginView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    coordinator.showWelcomeView()
+                    Task {
+                        coordinator.showOnboarding()
+                    }
                 } label: {
                     Image(systemName: "chevron.left")
                         .bold()

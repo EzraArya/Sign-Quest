@@ -8,45 +8,50 @@
 import SwiftUI
 import SignQuestInterfaces
 
-public class SQOnboardingCoordinator: OnboardingCoordinator {
-    private weak var appCoordinator: SQAppCoordinator?
-    private var navigationState = NavigationState()
+public enum SQOnboardingScreenType: Hashable, Identifiable {
+    case welcome
+    case introduction
     
-    public init(appCoordinator: SQAppCoordinator) {
+    public var id: Self { return self }
+}
+
+public class SQOnboardingCoordinator: NavigationCoordinatorProtocol {
+    public typealias ScreenType = SQOnboardingScreenType
+    @Published public var path: NavigationPath = NavigationPath()
+    
+    private weak var appCoordinator: (any AppCoordinatorProtocol)?
+    
+    public init(appCoordinator: any AppCoordinatorProtocol) {
         self.appCoordinator = appCoordinator
     }
-    
-    @MainActor
-    public func makeRootView() -> some View {
-        return SQOnboardingContainerView(coordinator: self, navigationState: navigationState)
+
+    public func push(_ screen: ScreenType) {
+        path.append(screen)
     }
     
-    public func showWelcomeView() {
-        navigationState.currentScreen = .welcome
-    }
-    
-    public func showIntroductionView() {
-        appCoordinator?.showNavigationBar()
-        navigationState.currentScreen = .introduction
-    }
-    
-    @MainActor
-    public func finishOnboarding() {
-        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-        appCoordinator?.startAuthentication(showRegister: true)
-    }
-        
-    @MainActor
-    public func showLoginView() {
-        appCoordinator?.startAuthentication(showRegister: false)
-    }
-    
-    class NavigationState: ObservableObject {
-        enum Screen {
-            case welcome
-            case introduction
+    public func pop() {
+        if !path.isEmpty {
+            path.removeLast()
         }
+    }
+    
+    public func popToRoot() {
+        path = NavigationPath()
+    }
+    
+    @MainActor
+    public func showAuthentication(isLogin: Bool = true) {
+        appCoordinator?.startAuthentication(isLogin: isLogin)
+    }
         
-        @Published var currentScreen: Screen = .welcome
+    @MainActor
+    @ViewBuilder
+    public func build(_ screen: ScreenType) -> some View {
+        switch screen {
+        case .welcome:
+            SQWelcomeView()
+        case .introduction:
+            SQIntroductionView()
+        }
     }
 }

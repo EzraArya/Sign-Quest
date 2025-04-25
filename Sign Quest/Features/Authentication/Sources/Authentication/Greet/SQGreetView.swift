@@ -9,11 +9,9 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQGreetView: View {
-    let coordinator: SQAuthenticationCoordinator
+    @EnvironmentObject var coordinator: SQAuthenticationCoordinator
 
-    public init(coordinator: SQAuthenticationCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
 
     public var body: some View {
         VStack(spacing: 16) {
@@ -23,7 +21,7 @@ public struct SQGreetView: View {
         .applyBackground()
         .task {
             try? await Task.sleep(nanoseconds: 800_000_000)
-            coordinator.finishAuthentication()
+            coordinator.showMainFlow()
         }
     }
 }

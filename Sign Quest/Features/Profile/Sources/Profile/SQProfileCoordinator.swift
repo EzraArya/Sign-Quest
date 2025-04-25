@@ -6,62 +6,55 @@
 //
 
 import SwiftUI
+import Combine
 import SignQuestInterfaces
 
-public class SQProfileCoordinator: ProfileCoordinator {
-    private weak var appCoordinator: SQAppCoordinator?
-    private var navigationState = NavigationState()
+public enum SQProfileScreenType: Hashable, Identifiable {
+    case profile
+    case editProfile
+    case editPassword
     
-    public var tabIcon: String = "person"
+    public var id: Self { return self }
+}
+
+public class SQProfileCoordinator: NavigationCoordinatorProtocol {
+    public typealias ScreenType = SQProfileScreenType
+    @Published public var path: NavigationPath = NavigationPath()
+    private weak var appCoordinator: (any AppCoordinatorProtocol)?
     
-    public init(appCoordinator: SQAppCoordinator) {
+    public init(appCoordinator: any AppCoordinatorProtocol) {
         self.appCoordinator = appCoordinator
     }
     
-    @MainActor
-    public func makeRootView() -> some View {
-        return SQProfileContainerView(coordinator: self, navigationState: navigationState)
+    public func push(_ screen: ScreenType) {
+        path.append(screen)
     }
     
-    public func showProfileView() {
-        navigationState.currentScreen = .profile
-    }
-    
-    public func showEditProfileView() {
-        navigationState.currentScreen = .editProfile
-    }
-    
-    public func showEditPasswordView() {
-        navigationState.currentScreen = .editPassword
-    }
-    
-    @MainActor
-    public func logOut() {
-        UserDefaults.standard.set(false, forKey: "isLoggedIn")
-        appCoordinator?.startOnboarding()
-    }
-    
-    @MainActor
-    public func deleteAccount() {
-        UserDefaults.standard.set(false, forKey: "isLoggedIn")
-        appCoordinator?.startOnboarding()
-    }
-        
-    class NavigationState: ObservableObject {
-        enum Screen {
-            case profile
-            case editProfile
-            case editPassword
+    public func pop() {
+        if !path.isEmpty {
+            path.removeLast()
         }
-        
-        @Published var currentScreen: Screen = .profile
     }
     
-    public func navigateBack() {
-        if navigationState.currentScreen == .editPassword {
-            navigationState.currentScreen = .editProfile
-        } else {
-            navigationState.currentScreen = .profile
+    public func popToRoot() {
+        path = NavigationPath()
+    }
+    
+    @MainActor
+    public func navigateToWelcome() {
+        appCoordinator?.startOnboarding()
+    }
+        
+    @MainActor
+    @ViewBuilder
+    public func build(_ screen: ScreenType) -> some View {
+        switch screen {
+        case .profile:
+            SQProfileView()
+        case .editProfile:
+            SQEditProfileView()
+        case .editPassword:
+            SQChangePasswordView()
         }
     }
 }

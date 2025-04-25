@@ -9,7 +9,7 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQRegisterView: View {
-    let coordinator: SQAuthenticationCoordinator
+    @EnvironmentObject var coordinator: SQAuthenticationCoordinator
     
     @State private var currentTab = 0
     @State private var age = ""
@@ -18,7 +18,6 @@ public struct SQRegisterView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var confirmPassword = ""
-    @Environment(\.dismiss) private var dismiss
     
     @State private var agePageValid = false
     @State private var namePageValid = false
@@ -27,16 +26,16 @@ public struct SQRegisterView: View {
     
     @State private var progressAmount = 25.0
     
-    public init(coordinator: SQAuthenticationCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
     
     public var body: some View {
         VStack(spacing: 0) {
             HStack {
                 Button {
                     if currentTab == 0 {
-                        coordinator.showWelcomeView()
+                        Task {
+                            coordinator.showOnboarding()
+                        }
                     } else {
                         currentTab -= 1
                         progressAmount -= 25
@@ -110,7 +109,7 @@ public struct SQRegisterView: View {
                         }
                     case 3:
                         if passwordPageValid {
-                            coordinator.showGreetingView()
+                            coordinator.push(.greet)
                         }
                     default:
                         break
