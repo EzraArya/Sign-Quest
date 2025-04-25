@@ -9,12 +9,10 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQHomeView: View {
-    let coordinator: SQHomeCoordinator
+    @EnvironmentObject var coordinator: SQHomeCoordinator
     public var user: String = "User"
     
-    public init(coordinator: SQHomeCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
     
     public var body: some View {
         VStack {

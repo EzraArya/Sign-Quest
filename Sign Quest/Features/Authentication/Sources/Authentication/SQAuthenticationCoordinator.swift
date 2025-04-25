@@ -8,49 +8,59 @@
 import SwiftUI
 import SignQuestInterfaces
 
-public class SQAuthenticationCoordinator: AuthenticationCoordinator {
-    public class NavigationState: ObservableObject {
-        public enum Screen {
-            case login
-            case register
-            case greet
-        }
-        
-        @Published var currentScreen: Screen = .login
-    }
+public enum SQAuthenticationScreenType: Hashable, Identifiable {
+    case login
+    case register
+    case greet
     
-    @Published public var navigationState = NavigationState()
-    private weak var appCoordinator: SQAppCoordinator?
+    public var id: Self { return self }
+}
+
+public class SQAuthenticationCoordinator: NavigationCoordinatorProtocol {
     
-    public init(appCoordinator: SQAppCoordinator) {
+    public typealias ScreenType = SQAuthenticationScreenType
+    @Published public var path: NavigationPath = NavigationPath()
+    
+    private weak var appCoordinator: (any AppCoordinatorProtocol)?
+    
+    public init(appCoordinator: any AppCoordinatorProtocol) {
         self.appCoordinator = appCoordinator
     }
     
-    @MainActor
-    public func makeRootView() -> some View {
-        SQAuthenticationContainerView(coordinator: self, navigationState: navigationState)
+    public func push(_ screen: SQAuthenticationScreenType) {
+        path.append(screen)
+    }
+    
+    public func pop() {
+        if !path.isEmpty {
+            path.removeLast()
+        }
+    }
+    
+    public func popToRoot() {
+        path = NavigationPath()
     }
     
     @MainActor
-    public func showWelcomeView() {
+    public func showOnboarding() {
         appCoordinator?.startOnboarding()
     }
     
-    @MainActor public func showLoginView() {
-        navigationState.currentScreen = .login
-    }
-    
-    public func showRegisterView() {
-        appCoordinator?.hideNavigationBar()
-        navigationState.currentScreen = .register
-    }
-    
-    public func showGreetingView() {
-        navigationState.currentScreen = .greet
-    }
-    
-    public func finishAuthentication() {
-        UserDefaults.standard.set(true, forKey: "isLoggedIn")
+    @MainActor
+    public func showMainFlow() {
         appCoordinator?.startMainFlow()
+    }
+
+    @MainActor
+    @ViewBuilder
+    public func build(_ screen: ScreenType) -> some View {
+        switch screen {
+        case .login:
+            SQLoginView()
+        case .register:
+            SQRegisterView()
+        case .greet:
+            SQGreetView()
+        }
     }
 }

@@ -9,35 +9,31 @@ import SwiftUI
 import SignQuestUI
 import SignQuestInterfaces
 
-public class SQDashboardCoordinator: DashboardCoordinator {
-    private weak var appCoordinator: SQAppCoordinator?
+public enum SQTabType: String, CaseIterable, Hashable {
+    case home
+    case leaderboard
+    case profile
     
-    public var tabCoordinators: [any TabCoordinator] {
-        guard let appCoordinator = appCoordinator else { return [] }
-        return [
-            appCoordinator.homeCoordinator,
-            appCoordinator.leaderboardCoordinator,
-            appCoordinator.profileCoordinator
-        ]
-    }
-    
-    public init(appCoordinator: SQAppCoordinator) {
-        self.appCoordinator = appCoordinator
-    }
-    
-    @MainActor
-    public func makeRootView() -> some View {
-        showDashboardTabView()
-    }
-    
-    @MainActor
-    public func showDashboardTabView() -> AnyView {
-        guard appCoordinator != nil else {
-            return AnyView(EmptyView())
+    var iconName: String {
+        switch self {
+        case .home:
+            return "house"
+        case .leaderboard:
+            return "trophy"
+        case .profile:
+            return "person"
         }
-        
-        return AnyView(
-            SQDashboardView(coordinator: self)
-        )
+    }
+}
+
+@MainActor
+public class SQDashboardCoordinator: TabBarCoordinatorProtocol {
+    public typealias TabType = SQTabType
+    public var activeTab: SQTabType = .home
+    
+    public init() {}
+    
+    public func switchTab(to tab: SQTabType) {
+        activeTab = tab
     }
 }

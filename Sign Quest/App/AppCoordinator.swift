@@ -15,72 +15,52 @@ import Home
 import Leaderboard
 import Profile
 
-@MainActor
-public class AppCoordinator: SQAppCoordinator {
-    public static func create() -> AppCoordinator {
-        AppCoordinator(navigationController: UINavigationController())
-    }
-    
-    public lazy var onboardingCoordinator: any SignQuestInterfaces.OnboardingCoordinator = SQOnboardingCoordinator(appCoordinator: self)
-    
-    public lazy var authenticationCoordinator: any SignQuestInterfaces.AuthenticationCoordinator = SQAuthenticationCoordinator(appCoordinator: self)
-    
-    public var navigationController: UINavigationController
-    
-    public lazy var homeCoordinator: any HomeCoordinator = SQHomeCoordinator(appCoordinator: self)
-    public lazy var leaderboardCoordinator: any LeaderboardCoordinator = SQLeaderboardCoordinator(appCoordinator: self)
-    public lazy var profileCoordinator: any ProfileCoordinator = SQProfileCoordinator(appCoordinator: self)
-    public lazy var dashboardCoordinator: any DashboardCoordinator = SQDashboardCoordinator(appCoordinator: self)
-    
-    private init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
-        navigationController.isNavigationBarHidden = true
-    }
-    
-    public func start() {
-        if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
-            if UserDefaults.standard.bool(forKey: "isLoggedIn") {
-                startMainFlow()
-            } else {
-                startAuthentication()
-            }
-        } else {
-            startOnboarding()
-        }
-    }
-    
-    public func startOnboarding() {
-        let rootView = onboardingCoordinator.makeRootView()
-        setRootView(AnyView(rootView))
-        onboardingCoordinator.showWelcomeView()
-    }
-    
-    public func startAuthentication(showRegister: Bool = false) {
-        let rootView = authenticationCoordinator.makeRootView()
-        setRootView(AnyView(rootView))
-        
-        if showRegister {
-            authenticationCoordinator.showRegisterView()
-        } else {
-            authenticationCoordinator.showLoginView()
-        }
-    }
-    
-    public func hideNavigationBar() {
-        navigationController.isNavigationBarHidden = true
-    }
+public enum AppState {
+    case onboarding
+    case mainFlow
+    case login
+    case register
+}
 
-    public func showNavigationBar() {
-        navigationController.isNavigationBarHidden = false
+@MainActor
+public class AppCoordinator: AppCoordinatorProtocol {
+    @Published public var appState: AppState = .mainFlow
+    
+    public init() {}
+        
+    public func startOnboarding() {
+        appState = .onboarding
     }
     
     public func startMainFlow() {
-        let rootView = dashboardCoordinator.makeRootView()
-        setRootView(AnyView(rootView))
+        appState = .mainFlow
     }
     
-    private func setRootView<V: View>(_ view: V) {
-        let hostingController = UIHostingController(rootView: view)
-        navigationController.setViewControllers([hostingController], animated: true)
+    public func startAuthentication(isLogin: Bool) {
+        if isLogin {
+            appState = .login
+        } else {
+            appState = .register
+        }
+    }
+    
+    @ViewBuilder
+    public func makeRootView() -> some View {
+        switch appState {
+        case .onboarding:
+            SQOnboardingCoordinatorView(appCoordinator: self)
+        case .login:
+            SQAuthenticationCoordinatorView(appCoordinator: self, initialScreen: .login)
+        case .register:
+            SQAuthenticationCoordinatorView(appCoordinator: self, initialScreen: .register)
+        case .mainFlow:
+            SQDashboardView(
+                homeCoordinatorView: SQHomeCoordinatorView(),
+                leaderboardCoordinatorView: SQLeaderboardView(),
+                profileCoordinatorView: SQProfileCoordinatorView(
+                    appCoordinator: self
+                )
+            )
+        }
     }
 }

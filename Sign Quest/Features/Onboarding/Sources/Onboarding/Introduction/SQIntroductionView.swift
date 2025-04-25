@@ -9,8 +9,8 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQIntroductionView: View {
-    let coordinator: SQOnboardingCoordinator
-    
+    @EnvironmentObject private var coordinator: SQOnboardingCoordinator
+
     @State private var currentTab = 0
     @StateObject private var viewModel = SQIntroductionViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -21,9 +21,7 @@ public struct SQIntroductionView: View {
     
     @State private var navigateToRegistration = false
     
-    public init(coordinator: SQOnboardingCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
     
     public var body: some View {
         VStack {
@@ -51,7 +49,7 @@ public struct SQIntroductionView: View {
                 if currentTab < viewModel.pages.count - 1 {
                     currentTab += 1
                 } else {
-                    coordinator.finishOnboarding()
+                    coordinator.showAuthentication(isLogin: false)
                 }
             }
         }
@@ -62,7 +60,7 @@ public struct SQIntroductionView: View {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
                     if currentTab == 0 {
-                        coordinator.showWelcomeView()
+                        coordinator.pop()
                     } else {
                         currentTab -= 1
                     }
@@ -75,7 +73,7 @@ public struct SQIntroductionView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 SQText(text: "Skip", font: .bold, color: .secondary, size: 16)
                     .onTapGesture {
-                        coordinator.finishOnboarding()
+                        coordinator.showAuthentication(isLogin: false)
                     }
             }
         }

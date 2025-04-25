@@ -25,6 +25,9 @@ let package = Package(
         .target(
             name: "Leaderboard",
             dependencies: ["SignQuestUI", "SignQuestInterfaces"],
+            resources: [
+                .process("Asset")
+            ]
         ),
         .testTarget(
             name: "LeaderboardTests",

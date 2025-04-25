@@ -10,13 +10,21 @@ import SignQuestUI
 import SignQuestInterfaces
 
 public struct SQDashboardView: View {
-    private let coordinator: SQDashboardCoordinator
-    @State private var selectedTab = 0
+    @StateObject var coordinator: SQDashboardCoordinator = SQDashboardCoordinator()
     
-    public init(coordinator: SQDashboardCoordinator) {
-        self.coordinator = coordinator
+    private let homeCoordinatorView: AnyView
+    private let leaderboardCoordinatorView: AnyView
+    private let profileCoordinatorView: AnyView
+    
+    public init(
+        homeCoordinatorView: some View,
+        leaderboardCoordinatorView: some View,
+        profileCoordinatorView: some View
+    ) {
+        self.homeCoordinatorView = AnyView(homeCoordinatorView)
+        self.leaderboardCoordinatorView = AnyView(leaderboardCoordinatorView)
+        self.profileCoordinatorView = AnyView(profileCoordinatorView)
         
-        // Configure tab bar appearance
         let appearance = UITabBarAppearance()
         appearance.backgroundColor = UIColor(SQColor.background.color)
         appearance.stackedLayoutAppearance.normal.iconColor = UIColor(SQColor.muted.color)
@@ -31,18 +39,30 @@ public struct SQDashboardView: View {
     
     public var body: some View {
         VStack {
-            TabView(selection: $selectedTab) {
-                ForEach(Array(coordinator.tabCoordinators.enumerated()), id: \.offset) { index, tabCoordinator in
-                    AnyView(tabCoordinator.makeRootView())
-                        .tabItem {
-                            SQImage(image: tabCoordinator.tabIcon)
-                        }
-                        .tag(index)
-                }
+            TabView(selection: $coordinator.activeTab) {
+                homeCoordinatorView
+                    .tabItem {
+                        SQImage(image: SQTabType.home.iconName)
+                    }
+                    .tag(SQTabType.home)
+                    
+                leaderboardCoordinatorView
+                    .tabItem {
+                        SQImage(image: SQTabType.leaderboard.iconName)
+                    }
+                    .tag(SQTabType.leaderboard)
+                
+                profileCoordinatorView
+                    .tabItem {
+                        SQImage(image: SQTabType.profile.iconName)
+                    }
+                    .tag(SQTabType.profile)
             }
+            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .never))
             .tint(SQColor.accent.color)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .applyBackground()
+        .environmentObject(coordinator)
     }
 }

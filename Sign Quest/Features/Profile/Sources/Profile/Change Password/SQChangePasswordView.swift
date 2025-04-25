@@ -9,15 +9,13 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQChangePasswordView: View {
-    let coordinator: SQProfileCoordinator
+    @EnvironmentObject var coordinator: SQProfileCoordinator
     
     @State private var oldPassword: String = ""
     @State private var newPassword: String = ""
     @State private var confirmPassword: String = ""
         
-    public init(coordinator: SQProfileCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -28,17 +26,18 @@ public struct SQChangePasswordView: View {
             Spacer()
             
             SQButton(text: "Save", font: .bold, style: .default, size: 16) {
-                coordinator.navigateBack()
+                coordinator.pop()
             }
         }
+        .applyBackground()
         .padding(.top, 24)
         .padding(.horizontal, 24)
         .applyBackground()
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
-                    coordinator.navigateBack()
+                    coordinator.pop()
                 } label: {
                     Image(systemName: "chevron.left")
                         .bold()
@@ -47,6 +46,13 @@ public struct SQChangePasswordView: View {
             }
             ToolbarItem(placement: .principal) {
                 SQText(text: "Change Password", font: .bold, color: .secondary, size: 24)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    coordinator.popToRoot()
+                } label: {
+                    SQText(text: "Home", font: .bold, color: .accent, size: 16)
+                }
             }
         }
     }

@@ -9,16 +9,14 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQEditProfileView: View {
-    let coordinator: SQProfileCoordinator
+    @EnvironmentObject var coordinator: SQProfileCoordinator
     
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
             
-    public init(coordinator: SQProfileCoordinator) {
-        self.coordinator = coordinator
-    }
+    public init() {}
     
     public var body: some View {
         VStack(spacing: 20) {
@@ -27,23 +25,24 @@ public struct SQEditProfileView: View {
             SQLabelTextField(label: "Email", title: "Email", text: $email, placeholder: "Enter your Email")
             
             SQButton(text: "Change Password", font: .bold, style: .muted, size: 16) {
-                coordinator.showEditPasswordView()
+                coordinator.push(.editPassword)
             }
             
             Spacer()
             
             SQButton(text: "Save", font: .bold, style: .default, size: 16) {
-                coordinator.navigateBack()
+                coordinator.pop()
             }
         }
         .padding(.top, 24)
         .padding(.horizontal, 24)
         .applyBackground()
+        .toolbar(.hidden, for: .tabBar)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    coordinator.navigateBack()
+                    coordinator.pop()
                 } label: {
                     Image(systemName: "chevron.left")
                         .bold()
