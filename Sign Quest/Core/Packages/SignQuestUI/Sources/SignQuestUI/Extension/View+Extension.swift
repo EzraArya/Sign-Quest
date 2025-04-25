@@ -37,4 +37,8 @@ public extension View {
             self
         }
     }
+    
+    func boxShadow(color: SQColor) -> some View {
+        self.modifier(SQBoxShadowModifier(color: color.color))
+    }
 }
