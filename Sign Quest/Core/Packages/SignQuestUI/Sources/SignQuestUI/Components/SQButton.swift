@@ -13,6 +13,7 @@ public enum SQButtonStyle {
     case muted
     case danger
     case incorrect
+    case locked
     
     var textColor: SQColor {
         switch self {
@@ -26,6 +27,8 @@ public enum SQButtonStyle {
             return .error
         case .incorrect:
             return .muted
+        case .locked:
+            return .accent
         }
     }
     
@@ -41,6 +44,8 @@ public enum SQButtonStyle {
             return .background
         case .incorrect:
             return .error
+        case .locked:
+            return .muted
         }
     }
     
@@ -56,6 +61,8 @@ public enum SQButtonStyle {
             return .error
         case .incorrect:
             return .muted
+        case .locked:
+            return .accent
         }
     }
 }
@@ -87,6 +94,12 @@ public struct SQButton: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 6)
                         .stroke(style.borderColor.color, lineWidth: 1)
+                )
+                .shadow(
+                    color: Color.black.opacity(0.3),
+                    radius: 4,
+                    x: 0,
+                    y: 2
                 )
         }
     }
