@@ -43,4 +43,5 @@ public protocol AppCoordinatorProtocol: ObservableObject {
     func startOnboarding()
     func startMainFlow()
     func startAuthentication(isLogin: Bool)
+    func startGame()
 }

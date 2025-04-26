@@ -46,7 +46,7 @@ public class AppCoordinator: AppCoordinatorProtocol {
         }
     }
     
-    public func startPlay() {
+    public func startGame() {
         appState = .play
     }
     
@@ -61,7 +61,9 @@ public class AppCoordinator: AppCoordinatorProtocol {
             SQAuthenticationCoordinatorView(appCoordinator: self, initialScreen: .register)
         case .mainFlow:
             SQDashboardView(
-                homeCoordinatorView: SQHomeCoordinatorView(),
+                homeCoordinatorView: SQHomeCoordinatorView(
+                    appCoordinator: self
+                ),
                 leaderboardCoordinatorView: SQLeaderboardView(),
                 profileCoordinatorView: SQProfileCoordinatorView(
                     appCoordinator: self
