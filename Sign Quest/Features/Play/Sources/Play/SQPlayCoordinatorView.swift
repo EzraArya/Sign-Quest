@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import SignQuestUI
 import SignQuestInterfaces
 
 public struct SQPlayCoordinatorView: View {
@@ -25,7 +26,17 @@ public struct SQPlayCoordinatorView: View {
                     coordinator.build(screen)
                 }
                 .sheet(item: $coordinator.sheet) { sheet in
-                    coordinator.build(sheet)
+                    if #available(iOS 16.4, *) {
+                        coordinator.build(sheet)
+                            .presentationDetents([.height(300)])
+                            .presentationDragIndicator(.visible)
+                            .presentationCornerRadius(36)
+                            .presentationBackground(SQColor.textbox.color)
+                    } else {
+                        coordinator.build(sheet)
+                            .presentationDetents([.height(300)])
+                            .presentationDragIndicator(.visible)
+                    }
                 }
         }
         .environmentObject(coordinator)
