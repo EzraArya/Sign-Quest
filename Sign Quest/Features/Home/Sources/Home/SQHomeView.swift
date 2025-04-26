@@ -26,7 +26,7 @@ public struct SQHomeView: View {
                                 
                 VStack(spacing: 30) {
                     SQLevelButton(level: "1", style: .completed)
-                    SQLevelButton(level: "2")
+                    SQLevelButton(level: "2", action: coordinator.navigateToGame)
                     SQLevelButton(level: "3", style: .locked)
                     SQLevelButton(level: "4", style: .locked)
                     SQLevelButton(level: "5", style: .locked)

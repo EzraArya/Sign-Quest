@@ -18,6 +18,11 @@ public class SQHomeCoordinator: NavigationCoordinatorProtocol {
     public typealias ScreenType = SQHomeScreenType
     
     @Published public var path: NavigationPath = NavigationPath()
+    private weak var appCoordinator: (any AppCoordinatorProtocol)?
+    
+    public init(appCoordinator: (any AppCoordinatorProtocol)? = nil) {
+        self.appCoordinator = appCoordinator
+    }
     
     public func push(_ screen: SQHomeScreenType) {
         path.append(screen)
@@ -31,6 +36,11 @@ public class SQHomeCoordinator: NavigationCoordinatorProtocol {
     
     public func popToRoot() {
         path = NavigationPath()
+    }
+    
+    @MainActor
+    public func navigateToGame() {
+        appCoordinator?.startGame()
     }
     
     @MainActor
