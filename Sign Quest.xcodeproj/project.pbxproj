@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		63158D912DBC1EB9009A1738 /* Play in Frameworks */ = {isa = PBXBuildFile; productRef = 63158D902DBC1EB9009A1738 /* Play */; };
 		636810172DB7F470007A482C /* Dashboard in Frameworks */ = {isa = PBXBuildFile; productRef = 636810162DB7F470007A482C /* Dashboard */; };
 		636810192DB7F470007A482C /* Home in Frameworks */ = {isa = PBXBuildFile; productRef = 636810182DB7F470007A482C /* Home */; };
 		6368101B2DB7F470007A482C /* Leaderboard in Frameworks */ = {isa = PBXBuildFile; productRef = 6368101A2DB7F470007A482C /* Leaderboard */; };
@@ -51,6 +52,7 @@
 				Features/Home,
 				Features/Leaderboard,
 				Features/Onboarding,
+				Features/Play,
 				Features/Profile,
 			);
 			target = 63841B2C2DB689DA00692236 /* Sign Quest */;
@@ -88,6 +90,7 @@
 				63C07E9B2DBA23C100829842 /* SignQuestInterfaces in Frameworks */,
 				636810172DB7F470007A482C /* Dashboard in Frameworks */,
 				63841BA42DB6966A00692236 /* Authentication in Frameworks */,
+				63158D912DBC1EB9009A1738 /* Play in Frameworks */,
 				636810192DB7F470007A482C /* Home in Frameworks */,
 				6368101B2DB7F470007A482C /* Leaderboard in Frameworks */,
 				63841BA12DB6965800692236 /* Onboarding in Frameworks */,
@@ -159,6 +162,7 @@
 				6368101C2DB7F470007A482C /* Profile */,
 				63AF74052DB9524300DED239 /* SignQuestUI */,
 				63C07E9A2DBA23C100829842 /* SignQuestInterfaces */,
+				63158D902DBC1EB9009A1738 /* Play */,
 			);
 			productName = "Sign Quest";
 			productReference = 63841B2D2DB689DA00692236 /* Sign Quest.app */;
@@ -247,6 +251,7 @@
 				63841BA22DB6966A00692236 /* XCLocalSwiftPackageReference "Sign Quest/Features/Authentication" */,
 				63AF74042DB9524300DED239 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestUI" */,
 				63C07E992DBA23C100829842 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestInterfaces" */,
+				63158D8F2DBC1EB9009A1738 /* XCLocalSwiftPackageReference "Sign Quest/Features/Play" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63841B2E2DB689DA00692236 /* Products */;
@@ -617,6 +622,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		63158D8F2DBC1EB9009A1738 /* XCLocalSwiftPackageReference "Sign Quest/Features/Play" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "Sign Quest/Features/Play";
+		};
 		63841B9F2DB6965800692236 /* XCLocalSwiftPackageReference "Sign Quest/Features/Onboarding" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "Sign Quest/Features/Onboarding";
@@ -636,6 +645,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		63158D902DBC1EB9009A1738 /* Play */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Play;
+		};
 		636810162DB7F470007A482C /* Dashboard */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Dashboard;
