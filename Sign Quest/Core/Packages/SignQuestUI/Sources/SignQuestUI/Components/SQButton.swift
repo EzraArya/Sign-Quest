@@ -39,7 +39,7 @@ public enum SQButtonStyle {
         case .secondary:
             return .secondary
         case .muted:
-            return .muted
+            return .background
         case .danger:
             return .background
         case .incorrect:
