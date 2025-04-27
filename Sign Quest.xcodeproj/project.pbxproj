@@ -46,6 +46,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Core/Packages/SignQuestInterfaces,
+				Core/Packages/SignQuestModels,
 				Core/Packages/SignQuestUI,
 				Features/Authentication,
 				Features/Dashboard,
