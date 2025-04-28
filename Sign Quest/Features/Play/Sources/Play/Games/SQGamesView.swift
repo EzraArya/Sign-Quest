@@ -19,7 +19,7 @@ public struct SQGamesView: View {
         VStack {
             HStack {
                 Button {
-                    
+                    coordinator.presentSheet(.setting)
                 } label: {
                     Image(systemName: "gearshape")
                         .bold()

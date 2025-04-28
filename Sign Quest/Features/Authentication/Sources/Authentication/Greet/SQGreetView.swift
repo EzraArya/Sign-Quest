@@ -23,5 +23,6 @@ public struct SQGreetView: View {
             try? await Task.sleep(nanoseconds: 800_000_000)
             coordinator.showMainFlow()
         }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }

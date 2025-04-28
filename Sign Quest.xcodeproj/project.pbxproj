@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		63158D912DBC1EB9009A1738 /* Play in Frameworks */ = {isa = PBXBuildFile; productRef = 63158D902DBC1EB9009A1738 /* Play */; };
+		634A202B2DBF88880055B257 /* YOLO in Frameworks */ = {isa = PBXBuildFile; productRef = 634A202A2DBF88880055B257 /* YOLO */; };
 		636810172DB7F470007A482C /* Dashboard in Frameworks */ = {isa = PBXBuildFile; productRef = 636810162DB7F470007A482C /* Dashboard */; };
 		636810192DB7F470007A482C /* Home in Frameworks */ = {isa = PBXBuildFile; productRef = 636810182DB7F470007A482C /* Home */; };
 		6368101B2DB7F470007A482C /* Leaderboard in Frameworks */ = {isa = PBXBuildFile; productRef = 6368101A2DB7F470007A482C /* Leaderboard */; };
@@ -46,6 +47,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Core/Packages/SignQuestInterfaces,
+				Core/Packages/SignQuestModels,
 				Core/Packages/SignQuestUI,
 				Features/Authentication,
 				Features/Dashboard,
@@ -88,6 +90,7 @@
 				6368101D2DB7F470007A482C /* Profile in Frameworks */,
 				63AF74062DB9524300DED239 /* SignQuestUI in Frameworks */,
 				63C07E9B2DBA23C100829842 /* SignQuestInterfaces in Frameworks */,
+				634A202B2DBF88880055B257 /* YOLO in Frameworks */,
 				636810172DB7F470007A482C /* Dashboard in Frameworks */,
 				63841BA42DB6966A00692236 /* Authentication in Frameworks */,
 				63158D912DBC1EB9009A1738 /* Play in Frameworks */,
@@ -163,6 +166,7 @@
 				63AF74052DB9524300DED239 /* SignQuestUI */,
 				63C07E9A2DBA23C100829842 /* SignQuestInterfaces */,
 				63158D902DBC1EB9009A1738 /* Play */,
+				634A202A2DBF88880055B257 /* YOLO */,
 			);
 			productName = "Sign Quest";
 			productReference = 63841B2D2DB689DA00692236 /* Sign Quest.app */;
@@ -252,6 +256,7 @@
 				63AF74042DB9524300DED239 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestUI" */,
 				63C07E992DBA23C100829842 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestInterfaces" */,
 				63158D8F2DBC1EB9009A1738 /* XCLocalSwiftPackageReference "Sign Quest/Features/Play" */,
+				634A20292DBF88880055B257 /* XCRemoteSwiftPackageReference "yolo-ios-app" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63841B2E2DB689DA00692236 /* Products */;
@@ -459,6 +464,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Sign-Quest-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera required for preview";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -489,6 +495,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Sign-Quest-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera required for preview";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -644,10 +651,26 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		634A20292DBF88880055B257 /* XCRemoteSwiftPackageReference "yolo-ios-app" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ultralytics/yolo-ios-app.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		63158D902DBC1EB9009A1738 /* Play */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Play;
+		};
+		634A202A2DBF88880055B257 /* YOLO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 634A20292DBF88880055B257 /* XCRemoteSwiftPackageReference "yolo-ios-app" */;
+			productName = YOLO;
 		};
 		636810162DB7F470007A482C /* Dashboard */ = {
 			isa = XCSwiftPackageProductDependency;
