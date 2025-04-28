@@ -18,15 +18,14 @@ struct SQUser: Hashable, Identifiable {
     
     var currentLevel: String?
     
-    init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date, currentLevel: String? = nil) {
+    init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
         self.email = email
         self.age = age
         self.password = password
-        self.createdAt = Date()
-        self.currentLevel = currentLevel
+        self.createdAt = createdAt
     }
     
     var fullName: String {
