@@ -46,6 +46,7 @@
 		63841B9D2DB6960D00692236 /* Exceptions for "Sign Quest" folder in "Sign Quest" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Model/yolo.mlmodel,
 				Core/Packages/SignQuestInterfaces,
 				Core/Packages/SignQuestModels,
 				Core/Packages/SignQuestUI,
@@ -61,11 +62,22 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		633A43BC2DC00B1600E36A40 /* Exceptions for "Sign Quest" folder in "Copy Bundle Resources" phase from "Sign Quest" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 63841B2B2DB689DA00692236 /* Resources */;
+			membershipExceptions = (
+				Core/Model/yolo.mlmodel,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		63841B2F2DB689DA00692236 /* Sign Quest */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				63841B9D2DB6960D00692236 /* Exceptions for "Sign Quest" folder in "Sign Quest" target */,
+				633A43BC2DC00B1600E36A40 /* Exceptions for "Sign Quest" folder in "Copy Bundle Resources" phase from "Sign Quest" target */,
 			);
 			path = "Sign Quest";
 			sourceTree = "<group>";
@@ -471,6 +483,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -502,6 +515,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

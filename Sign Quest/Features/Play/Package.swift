@@ -17,13 +17,21 @@ let package = Package(
     dependencies: [
         .package(path: "../SignQuestUI"),
         .package(path: "../SignQuestInterfaces"),
+        .package(url: "https://github.com/ultralytics/yolo-ios-app.git", branch: "main")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Play",
-            dependencies: ["SignQuestUI", "SignQuestInterfaces"],
+            dependencies: [
+                "SignQuestUI",
+                "SignQuestInterfaces",
+                .product(name: "YOLO", package: "yolo-ios-app")
+            ],
+            resources: [
+                .copy("Games/Model/yolo.mlmodel")
+            ]
         ),
         .testTarget(
             name: "PlayTests",
