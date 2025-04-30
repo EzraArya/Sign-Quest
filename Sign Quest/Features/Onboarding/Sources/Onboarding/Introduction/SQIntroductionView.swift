@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SignQuestUI
+import SignQuestCore
 
 public struct SQIntroductionView: View {
     @EnvironmentObject private var coordinator: SQOnboardingCoordinator
@@ -49,6 +50,7 @@ public struct SQIntroductionView: View {
                 if currentTab < viewModel.pages.count - 1 {
                     currentTab += 1
                 } else {
+                    UserDefaultsManager.shared.isOnboardingCompleted = true
                     coordinator.showAuthentication(isLogin: false)
                 }
             }

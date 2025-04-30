@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SignQuestUI
+import SignQuestCore
 
 public struct SQProfileView: View {
     @EnvironmentObject var coordinator: SQProfileCoordinator
@@ -70,6 +71,7 @@ public struct SQProfileView: View {
                     
                     VStack(spacing: 16) {
                         SQButton(text: "Logout", font: .bold, style: .secondary, size: 16) {
+                            UserDefaultsManager.shared.resetAll()
                             coordinator.navigateToWelcome()
                         }
                         SQButton(text: "Delete Account", font: .bold, style: .danger, size: 16) {
@@ -86,6 +88,7 @@ public struct SQProfileView: View {
                 SQProfileDeleteAlertView(
                     isPresented: $showDeleteAlert,
                     onDelete: {
+                        UserDefaultsManager.shared.resetAll()
                         coordinator.navigateToWelcome()
                     }
                 )

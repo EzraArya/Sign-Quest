@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SignQuestUI
+import SignQuestCore
 
 public struct SQGreetView: View {
     @EnvironmentObject var coordinator: SQAuthenticationCoordinator
@@ -21,6 +22,7 @@ public struct SQGreetView: View {
         .applyBackground()
         .task {
             try? await Task.sleep(nanoseconds: 800_000_000)
+            UserDefaultsManager.shared.isLoggedIn = true
             coordinator.showMainFlow()
         }
         .toolbar(.hidden, for: .navigationBar)
