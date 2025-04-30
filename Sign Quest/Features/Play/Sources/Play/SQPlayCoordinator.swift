@@ -23,8 +23,10 @@ public enum SQPlaySheetType: Hashable, Identifiable {
     
     public var id: Self {
         switch self {
-        case .setting: return .setting
-        case .camera: return .camera(.constant(nil))
+        case .setting: 
+            return .setting
+        case .camera(let binding): 
+            return .camera(binding)
         }
     }
     
