@@ -8,14 +8,17 @@
 import SwiftUI
 import SignQuestUI
 import YOLO
+import PhotosUI
 
 public struct SQGamesTypeThreePage: View {
-    @State private var modelPath: String = ""
-    @State private var modelFound: Bool = false
+    @StateObject private var viewModel = SQGamesTypeThreeViewModel()
+    @EnvironmentObject var coordinator: SQPlayCoordinator
+    @Binding private var parentSelectedImage: UIImage?
     
-    public init() {
-        setupModel()
+    public init(selectedImage: Binding<UIImage?>) {
+        self._parentSelectedImage = selectedImage
     }
+    
     public var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -24,65 +27,77 @@ public struct SQGamesTypeThreePage: View {
             }
             Spacer()
             
-            VStack(spacing: 36){
-                SQText(text: "A", font: .bold, color: .text, size: 64)
-                
-                if modelFound {
-                    YOLOCamera(
-                        modelPathOrName: "yolo",
-                        task: .detect,
-                        cameraPosition: .front
-                    )
-                    .frame(width: 312, height: 312)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(SQColor.primary.color, lineWidth: 2)
-                    )
-                } else {
-                    Text("Model not found in main bundle")
-                        .frame(width: 312, height: 312)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+            HStack{
+                Spacer()
+                VStack(alignment: .center, spacing: 36){
+                    SQText(text: "A", font: .bold, color: .text, size: 64)
+                    
+                    if let image = viewModel.selectedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 312, height: 312)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(SQColor.primary.color, lineWidth: 2)
+                            )
+                        
+                        if let (label, confidence) = viewModel.getTopDetection() {
+                            HStack {
+                                Text(label)
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(SQColor.text.color)
+                                
+                                Spacer()
+                                
+                                Text("\(confidence)%")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundStyle(SQColor.primary.color)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(SQColor.textbox.color)
+                            .cornerRadius(8)
+                            .padding(.top, 12)
+                        }
+                    } else {
+                        Text("Select an image")
+                            .foregroundStyle(SQColor.accent.color)
+                            .frame(width: 312, height: 312)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(SQColor.primary.color, lineWidth: 2)
+                            )
+                    }
                 }
+                Spacer()
             }
             
             Spacer()
-            Spacer()
+            SQButton(text: viewModel.setButtonText(), font: .bold, style: .secondary, size: 16) {
+                coordinator.presentSheet(.camera($viewModel.selectedImage))
+            }
+            .padding(.bottom, 12)
         }
         .applyBackground()
         .toolbar(.hidden, for: .tabBar)
-    }
-    
-    private mutating func setupModel() {
-        if let modelURL = Bundle.main.url(forResource: "yolo", withExtension: "mlmodel") {
-            print("✅ Found original model at: \(modelURL)")
-            _modelPath = State(initialValue: modelURL.path)
-            _modelFound = State(initialValue: true)
-        }
-        // Then try the compiled model directory
-        else if let modelURL = Bundle.main.url(forResource: "yolo", withExtension: "mlmodelc") {
-            print("✅ Found compiled model at: \(modelURL)")
-            _modelPath = State(initialValue: modelURL.path)
-            _modelFound = State(initialValue: true)
-        }
-        // If still not found, debug bundle contents
-        else {
-            print("❌ Model not found in expected locations")
-            
-            // Debug what's actually in the bundle
-            if let resourcePath = Bundle.main.resourcePath {
-                do {
-                    let items = try FileManager.default.contentsOfDirectory(atPath: resourcePath)
-                    print("Bundle contents: \(items)")
-                    
-                    // Look for any ML-related files
-                    let mlFiles = items.filter { $0.contains(".ml") }
-                    print("ML files found: \(mlFiles)")
-                } catch {
-                    print("Error listing directory: \(error)")
-                }
+        .onChange(of: viewModel.selectedImage) { oldImage, newImage in
+            if let image = newImage {
+                let correctedImage = viewModel.getCorrectOrientationUIImage(uiImage: image)
+                viewModel.processImageWithYolo(correctedImage)
+                parentSelectedImage = image  // sync with parent
+            } else {
+                viewModel.yoloResult = nil
+                parentSelectedImage = nil  // sync with parent
             }
+        }
+        .onChange(of: parentSelectedImage) { _, newImage in
+            viewModel.selectedImage = newImage
+        }
+        .onAppear {
+            viewModel.selectedImage = parentSelectedImage
         }
     }
 }
