@@ -12,6 +12,7 @@ public struct SQGamesView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
     @State private var currentTab: Int = 0
     @State private var progressAmount: Double = 25.0
+    @State private var cameraImage: UIImage? = nil
     
     public init() {}
     
@@ -41,7 +42,7 @@ public struct SQGamesView: View {
                     .tag(0)
                 SQGamesTypeTwoPage()
                     .tag(1)
-                SQGamesTypeThreePage()
+                SQGamesTypeThreePage(selectedImage: $cameraImage)
                     .tag(2)
             }
             .padding(.horizontal, 24)

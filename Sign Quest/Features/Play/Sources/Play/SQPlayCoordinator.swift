@@ -19,8 +19,36 @@ public enum SQPlayScreenType: Hashable, Identifiable {
 
 public enum SQPlaySheetType: Hashable, Identifiable {
     case setting
+    case camera(Binding<UIImage?>)
     
-    public var id: Self { return self }
+    public var id: Self {
+        switch self {
+        case .setting: 
+            return .setting
+        case .camera(let binding): 
+            return .camera(binding)
+        }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .setting:
+            hasher.combine(0)
+        case .camera:
+            hasher.combine(1)
+        }
+    }
+    
+    public static func == (lhs: SQPlaySheetType, rhs: SQPlaySheetType) -> Bool {
+        switch (lhs, rhs) {
+        case (.setting, .setting):
+            return true
+        case (.camera, .camera):
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 public class SQPlayCoordinator: NavigationCoordinatorProtocol, SheetCoordinatorProtocol {
@@ -84,6 +112,8 @@ public class SQPlayCoordinator: NavigationCoordinatorProtocol, SheetCoordinatorP
         switch sheet {
         case .setting:
             SQSettingView()
+        case .camera(let imageBinding):
+            SQCameraView(image: imageBinding)
         }
     }
 }
