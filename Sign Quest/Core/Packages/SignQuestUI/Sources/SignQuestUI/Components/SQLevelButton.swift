@@ -94,14 +94,15 @@ public struct SQLevelButton: View {
     public var body: some View {
         ZStack(alignment: .center) {
             Button {
-                if activePopupBinding.wrappedValue == level {
-                    // Close popup if it's already open
-                    activePopupBinding.wrappedValue = nil
-                } else {
-                    // Open this popup, closing any others
-                    activePopupBinding.wrappedValue = level
+                withAnimation {
+                    if activePopupBinding.wrappedValue == level {
+                        // Close popup if it's already open
+                       activePopupBinding.wrappedValue = nil
+                    } else {
+                        // Open this popup, closing any others
+                        activePopupBinding.wrappedValue = level
+                    }
                 }
-            } label: {
                 SQText(text: level, font: .bold, color: style.textColor, size: 18)
                     .frame(width: 50, height: 50)
                     .background(style.backgroundColor.color)
