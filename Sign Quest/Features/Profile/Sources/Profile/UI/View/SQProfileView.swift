@@ -42,8 +42,8 @@ public struct SQProfileView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 6) {
-                            SQText(text: "John Doe", font: .bold, color: .text, size: 24)
-                            SQText(text: "\(viewModel.email) ◦ \(viewModel.joinDate)", font: .regular, color: .placeholder, size: 14)
+                            SQText(text: viewModel.userName, font: .bold, color: .text, size: 24)
+                            SQText(text: "\(viewModel.userEmail) ◦ \(viewModel.joinDate)", font: .regular, color: .placeholder, size: 14)
                         }
                         SQButton(text: "Edit Profile", font: .bold, style: .default, size: 16) {
                             viewModel.navigateToEditProfile()

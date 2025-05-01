@@ -8,6 +8,7 @@
 import SwiftUI
 import SignQuestUI
 import SignQuestCore
+import SignQuestModels
 
 enum SQProfileOverviewType {
     case totalScore
@@ -64,13 +65,13 @@ struct SQProfileOverview {
 
 class SQProfileViewModel: ObservableObject {
     private var coordinator: SQProfileCoordinator?
-    @Published public var email: String = "email@gmail.com"
-    @Published public var joinDate: String = "9th December"
     @Published public var showDeleteAlert: Bool = false
     @Published public var overviewItems: [SQProfileOverview] = []
-        
+    public var user: SQUser?
+    
     init() {
         setupOverviewItems()
+        fetchUserProfile()
     }
         
     private func setupOverviewItems() {
@@ -99,5 +100,27 @@ class SQProfileViewModel: ObservableObject {
     func deleteAccount() {
         UserDefaultsManager.shared.resetAll()
         coordinator?.navigateToWelcome()
+    }
+}
+
+extension SQProfileViewModel {
+    var userName: String {
+        return user?.fullName ?? "User Name"
+    }
+    
+    var userEmail: String {
+        return user?.email ?? "email@gmail.com"
+    }
+    
+    var joinDate: String {
+        if let date = user?.createdAt {
+            return date.formatted(date: .long, time: .omitted)
+        } else {
+            return Date().formatted(date: .long, time: .omitted)
+        }
+    }
+    
+    func fetchUserProfile() {
+        self.user = SQUser(firstName: "John", lastName: "Doe", email: "johndoe@gmail.com", age: 18, password: "pass")
     }
 }
