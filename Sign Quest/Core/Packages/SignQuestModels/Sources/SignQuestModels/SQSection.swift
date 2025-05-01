@@ -7,25 +7,25 @@
 
 import Foundation
 
-enum SQSectionStatus: String, Codable {
+public enum SQSectionStatus: String, Codable, Sendable {
     case locked
     case inProgress
     case completed
 }
 
-struct SQSection: Codable, Identifiable, Hashable {
-    let id: String
-    let number: Int
-    let title: String
-    let description: String
-    let levels: [SQLevel]
-    var status: SQSectionStatus
+public struct SQSection: Codable, Identifiable, Hashable, Sendable {
+    public let id: String
+    public let number: Int
+    public let title: String
+    public let description: String
+    public let levels: [SQLevel]
+    public var status: SQSectionStatus
     
-    var displayName: String {
+    public var displayName: String {
         return "Section \(number)"
     }
     
-    var completionPercentage: Double {
+    public var completionPercentage: Double {
         guard !levels.isEmpty else { return 0.0 }
         let completedCount = levels.filter { level in
             return level.status == .completed
@@ -33,7 +33,7 @@ struct SQSection: Codable, Identifiable, Hashable {
         return Double(completedCount) / Double(levels.count) * 100.0
     }
     
-    init(
+    public init(
         id: String = UUID().uuidString,
         number: Int,
         title: String,
@@ -49,11 +49,11 @@ struct SQSection: Codable, Identifiable, Hashable {
         self.status = status
     }
     
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
-    static func == (lhs: SQSection, rhs: SQSection) -> Bool {
+    public static func == (lhs: SQSection, rhs: SQSection) -> Bool {
         return lhs.id == rhs.id
     }
 }
