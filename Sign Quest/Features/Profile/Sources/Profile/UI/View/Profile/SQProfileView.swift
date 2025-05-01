@@ -11,11 +11,7 @@ import SignQuestCore
 
 public struct SQProfileView: View {
     @EnvironmentObject var coordinator: SQProfileCoordinator
-    
-    @State private var email: String = "email@gmail.com"
-    @State private var joinDate: String = "9th December"
-    
-    @State private var showDeleteAlert: Bool = false
+    @StateObject var viewModel: SQProfileViewModel = SQProfileViewModel()
 
     public init() {}
     
@@ -46,36 +42,41 @@ public struct SQProfileView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 6) {
-                            SQText(text: "John Doe", font: .bold, color: .text, size: 24)
-                            SQText(text: "\(email) ◦ \(joinDate)", font: .regular, color: .placeholder, size: 14)
+                            SQText(text: viewModel.userName, font: .bold, color: .text, size: 24)
+                            SQText(text: "\(viewModel.userEmail) ◦ \(viewModel.joinDate)", font: .regular, color: .placeholder, size: 14)
                         }
                         SQButton(text: "Edit Profile", font: .bold, style: .default, size: 16) {
-                            coordinator.push(.editProfile)
+                            viewModel.navigateToEditProfile()
                         }
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
                         SQText(text: "Overview", font: .medium, color: .text, size: 18)
                         
-                        VStack(spacing: 16) {
-                            HStack(spacing: 16) {
-                                SQImageTextBox(image: "star", imageColor: .complementary,title: "50.000", description: "Total Score")
-                                SQImageTextBox(image: "hand.raised",imageColor: .cream, title: "10", description: "Sign Learned")
-                            }
-                            HStack(spacing: 16) {
-                                SQImageTextBox(image: "flame",imageColor: .red, title: "5", description: "Day Streak")
-                                SQImageTextBox(image: "medal",imageColor: .complementary, title: "2", description: "Finished Level")
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible(), spacing: 16),
+                                GridItem(.flexible(), spacing: 16)
+                            ],
+                            spacing: 16
+                        ) {
+                            ForEach(viewModel.overviewItems, id: \.type) { item in
+                                SQImageTextBox(
+                                    image: item.type.image,
+                                    imageColor: item.type.imageColor,
+                                    title: item.value,
+                                    description: item.type.description
+                                )
                             }
                         }
                     }
                     
                     VStack(spacing: 16) {
                         SQButton(text: "Logout", font: .bold, style: .secondary, size: 16) {
-                            UserDefaultsManager.shared.resetAll()
-                            coordinator.navigateToWelcome()
+                            viewModel.logout()
                         }
                         SQButton(text: "Delete Account", font: .bold, style: .danger, size: 16) {
-                            showDeleteAlert.toggle()
+                            viewModel.showDeleteAlert.toggle()
                         }
                     }
                     Spacer()
@@ -84,16 +85,18 @@ public struct SQProfileView: View {
             }
             .applyBackground()
             
-            if showDeleteAlert {
+            if viewModel.showDeleteAlert {
                 SQProfileDeleteAlertView(
-                    isPresented: $showDeleteAlert,
+                    isPresented: $viewModel.showDeleteAlert,
                     onDelete: {
-                        UserDefaultsManager.shared.resetAll()
-                        coordinator.navigateToWelcome()
+                        viewModel.deleteAccount()
                     }
                 )
             }
         }
         .ignoresSafeArea(edges: .top)
+        .onAppear {
+            viewModel.setCoordinator(coordinator)
+        }
     }
 }

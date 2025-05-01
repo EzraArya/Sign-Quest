@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SignQuestCore
 
 class SQGreetViewModel: ObservableObject {
     private var coordinator: SQAuthenticationCoordinator?
@@ -16,6 +17,7 @@ class SQGreetViewModel: ObservableObject {
     
     @MainActor
     func navigateToHome() {
+        UserDefaultsManager.shared.isLoggedIn = true
         coordinator?.showMainFlow()
     }
 }

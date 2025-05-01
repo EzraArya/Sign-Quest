@@ -10,28 +10,24 @@ import SignQuestUI
 
 public struct SQEditProfileView: View {
     @EnvironmentObject var coordinator: SQProfileCoordinator
-    
-    @State private var firstName: String = ""
-    @State private var lastName: String = ""
-    @State private var email: String = ""
-    @State private var password: String = ""
+    @StateObject var viewModel: SQEditProfileViewModel = SQEditProfileViewModel()
             
     public init() {}
     
     public var body: some View {
         VStack(spacing: 20) {
-            SQLabelTextField(label: "First Name", title: "firstName", text: $firstName, placeholder: "Enter your first name")
-            SQLabelTextField(label: "Last Name", title: "lastName", text: $lastName, placeholder: "Enter your last name")
-            SQLabelTextField(label: "Email", title: "Email", text: $email, placeholder: "Enter your Email")
+            SQLabelTextField(label: "First Name", title: "firstName", text: $viewModel.firstName, placeholder: "Enter your first name")
+            SQLabelTextField(label: "Last Name", title: "lastName", text: $viewModel.lastName, placeholder: "Enter your last name")
+            SQLabelTextField(label: "Email", title: "Email", text: $viewModel.email, placeholder: "Enter your Email")
             
             SQButton(text: "Change Password", font: .bold, style: .muted, size: 16) {
-                coordinator.push(.editPassword)
+                viewModel.navigateToChangePassword()
             }
             
             Spacer()
             
             SQButton(text: "Save", font: .bold, style: .default, size: 16) {
-                coordinator.pop()
+                viewModel.updateProfile()
             }
         }
         .padding(.top, 24)
@@ -42,7 +38,7 @@ public struct SQEditProfileView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    coordinator.pop()
+                    viewModel.navigateBack()
                 } label: {
                     Image(systemName: "chevron.left")
                         .bold()
@@ -52,6 +48,9 @@ public struct SQEditProfileView: View {
             ToolbarItem(placement: .principal) {
                 SQText(text: "Profile", font: .bold, color: .secondary, size: 24)
             }
+        }
+        .onAppear {
+            viewModel.setCoordinator(coordinator)
         }
     }
 }

@@ -18,6 +18,7 @@ let package = Package(
         .package(path: "../SignQuestUI"),
         .package(path: "../SignQuestInterfaces"),
         .package(path: "../SignQuestCore"),
+        .package(path: "../SignQuestModels"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -25,7 +26,7 @@ let package = Package(
         .target(
             name: "Profile",
             dependencies: ["SignQuestUI", "SignQuestInterfaces",
-                           "SignQuestCore"],
+                           "SignQuestCore", "SignQuestModels"],
             resources: [
                 .process("Asset")
             ]
