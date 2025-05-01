@@ -10,35 +10,18 @@ import SignQuestUI
 
 public struct SQRegisterView: View {
     @EnvironmentObject var coordinator: SQAuthenticationCoordinator
-    
-    @State private var currentTab = 0
-    @State private var age = ""
-    @State private var firstName = ""
-    @State private var lastName = ""
-    @State private var email = ""
-    @State private var password = ""
-    @State private var confirmPassword = ""
-    
-    @State private var agePageValid = false
-    @State private var namePageValid = false
-    @State private var emailPageValid = false
-    @State private var passwordPageValid = false
-    
-    @State private var progressAmount = 25.0
-    
+    @StateObject private var viewModel = SQRegisterViewModel()
+
     public init() {}
     
     public var body: some View {
         VStack(spacing: 0) {
             HStack {
                 Button {
-                    if currentTab == 0 {
-                        Task {
-                            coordinator.showOnboarding()
-                        }
+                    if viewModel.currentTab == 0 {
+                        viewModel.navigateToOnboarding()
                     } else {
-                        currentTab -= 1
-                        progressAmount -= 25
+                        viewModel.decrementProgress()
                     }
                 } label: {
                     Image(systemName: "chevron.left")
@@ -48,7 +31,7 @@ public struct SQRegisterView: View {
                 
                 Spacer()
                 
-                SQProgressBar(progress: $progressAmount)
+                SQProgressBar(progress: $viewModel.progressAmount)
                 
                 Spacer()
             }
@@ -57,27 +40,27 @@ public struct SQRegisterView: View {
             .padding(.bottom, 8)
             
             VStack(alignment: .leading) {
-                TabView(selection: $currentTab) {
+                TabView(selection: $viewModel.currentTab) {
                     SQRegistrationAgePage(
-                        age: $age,
-                        isValid: $agePageValid
+                        age: $viewModel.age,
+                        isValid: $viewModel.agePageValid
                     )
                     .tag(0)
                     SQRegistrationNamePage(
-                        firstName: $firstName,
-                        lastName: $lastName,
-                        isValid: $namePageValid
+                        firstName: $viewModel.firstName,
+                        lastName: $viewModel.lastName,
+                        isValid: $viewModel.namePageValid
                     )
                     .tag(1)
                     SQRegistrationEmailPage(
-                        email: $email,
-                        isValid: $emailPageValid
+                        email: $viewModel.email,
+                        isValid: $viewModel.emailPageValid
                     )
                     .tag(2)
                     SQRegistrationPasswordPage(
-                        password: $password,
-                        confirmPassword: $confirmPassword,
-                        isValid: $passwordPageValid
+                        password: $viewModel.password,
+                        confirmPassword: $viewModel.confirmPassword,
+                        isValid: $viewModel.passwordPageValid
                     )
                     .tag(3)
                 }
@@ -90,35 +73,36 @@ public struct SQRegisterView: View {
                 
                 Spacer()
                 
-                SQButton(text: currentTab < 3 ? "Continue" : "Create Profile", font: .bold, style: .default, size: 16) {
-                    switch currentTab {
+                SQButton(text: viewModel.currentTab < 3 ? "Continue" : "Create Profile", font: .bold, style: .default, size: 16) {
+                    switch viewModel.currentTab {
                     case 0:
-                        if agePageValid {
-                            currentTab += 1
-                            progressAmount += 25
+                        if viewModel.agePageValid {
+                            viewModel.incrementProgress()
                         }
                     case 1:
-                        if namePageValid {
-                            currentTab += 1
-                            progressAmount += 25
+                        if viewModel.namePageValid {
+                            viewModel.incrementProgress()
                         }
                     case 2:
-                        if emailPageValid {
-                            currentTab += 1
-                            progressAmount += 25
+                        if viewModel.emailPageValid {
+                            viewModel.incrementProgress()
                         }
                     case 3:
-                        if passwordPageValid {
-                            coordinator.push(.greet)
+                        if viewModel.passwordPageValid {
+                            viewModel.createAccount()
                         }
                     default:
                         break
                     }
                 }
+                .padding(.bottom, 16)
             }
             .padding(.horizontal, 24)
         }
         .applyBackground()
         .toolbar(.hidden)
+        .onAppear {
+            viewModel.setCoordinator(coordinator)
+        }
     }
 }
