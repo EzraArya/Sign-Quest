@@ -12,7 +12,6 @@ import SignQuestCore
 public struct SQIntroductionView: View {
     @EnvironmentObject private var coordinator: SQOnboardingCoordinator
 
-    @State private var currentTab = 0
     @StateObject private var viewModel = SQIntroductionViewModel()
     @Environment(\.dismiss) private var dismiss
 
@@ -26,7 +25,7 @@ public struct SQIntroductionView: View {
     
     public var body: some View {
         VStack {
-            TabView(selection: $currentTab) {
+            TabView(selection: $viewModel.currentTab) {
                 ForEach(0..<viewModel.pages.count, id: \.self) { index in
                     let page = viewModel.pages[index]
                     SQIntroductionPageView(title: page.title, boldTitle: page.boldTitle, subtitle: page.subtitle)
@@ -38,17 +37,17 @@ public struct SQIntroductionView: View {
             HStack(spacing: dotSpacing) {
                 ForEach(0..<viewModel.pages.count, id: \.self) { index in
                     Circle()
-                        .fill(index == currentTab ? SQColor.primary.color : SQColor.muted.color)
-                        .frame(width: index == currentTab ? activeDotSize : dotSize,
-                               height: index == currentTab ? activeDotSize : dotSize)
-                        .animation(.easeInOut, value: currentTab)
+                        .fill(index == viewModel.currentTab ? SQColor.primary.color : SQColor.muted.color)
+                        .frame(width: index == viewModel.currentTab ? activeDotSize : dotSize,
+                               height: index == viewModel.currentTab ? activeDotSize : dotSize)
+                        .animation(.easeInOut, value: viewModel.currentTab)
                 }
             }
             .padding(.bottom, 24)
             
-            SQButton(text: currentTab < viewModel.pages.count - 1 ? "Continue" : "Create Profile", font: .bold, style: .default, size: 16) {
-                if currentTab < viewModel.pages.count - 1 {
-                    currentTab += 1
+            SQButton(text: viewModel.currentTab < viewModel.pages.count - 1 ? "Continue" : "Create Profile", font: .bold, style: .default, size: 16) {
+                if viewModel.currentTab < viewModel.pages.count - 1 {
+                    viewModel.incrementCurrentTab()
                 } else {
                     viewModel.navigateToRegistration()
                 }
@@ -60,10 +59,10 @@ public struct SQIntroductionView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
-                    if currentTab == 0 {
+                    if viewModel.currentTab == 0 {
                         viewModel.navigateBack()
                     } else {
-                        currentTab -= 1
+                        viewModel.decrementCurrentTab()
                     }
                 } label: {
                     Image(systemName: "chevron.left")

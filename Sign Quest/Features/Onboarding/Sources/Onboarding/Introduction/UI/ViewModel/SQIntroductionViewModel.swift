@@ -21,6 +21,7 @@ class SQIntroductionViewModel: ObservableObject {
         IntroductionPage(title: "Ready to", boldTitle: "Start?", subtitle: "Create your account and begin your quest today.")
     ]
     private var coordinator: SQOnboardingCoordinator?
+    @Published public var currentTab = 0
     
     public func setCoordinator(_ coordinator: SQOnboardingCoordinator) {
         self.coordinator = coordinator
@@ -35,4 +36,13 @@ class SQIntroductionViewModel: ObservableObject {
     public func navigateBack() {
         coordinator?.pop()
     }
+    
+    public func incrementCurrentTab() {
+        self.currentTab += 1
+    }
+    
+    public func decrementCurrentTab() {
+        self.currentTab -= 1
+    }
+
 }
