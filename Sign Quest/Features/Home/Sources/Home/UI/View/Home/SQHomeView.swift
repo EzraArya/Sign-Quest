@@ -47,8 +47,9 @@ public struct SQHomeView: View {
         .onAppear {
             viewModel.setCoordinator(coordinator)
             Task {
-                await viewModel.loadUserData()
-                await viewModel.loadSections()
+                async let userData = viewModel.loadUserData()
+                async let sections = viewModel.loadSections()
+                await (userData, sections)
             }
         }
     }
