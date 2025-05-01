@@ -34,11 +34,4 @@ public final class UserDefaultsManager: @unchecked Sendable {
         isOnboardingCompleted = false
         isLoggedIn = false
     }
-    
-    // Add debug method to verify values
-    public func printDebugValues() {
-        print("📦 UserDefaults - Current Values:")
-        print("   isOnboardingCompleted: \(isOnboardingCompleted)")
-        print("   isLoggedIn: \(isLoggedIn)")
-    }
 }
