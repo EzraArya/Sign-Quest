@@ -10,23 +10,20 @@ import SignQuestUI
 
 public struct SQChangePasswordView: View {
     @EnvironmentObject var coordinator: SQProfileCoordinator
+    @StateObject var viewModel: SQChangePasswordViewModel = SQChangePasswordViewModel()
     
-    @State private var oldPassword: String = ""
-    @State private var newPassword: String = ""
-    @State private var confirmPassword: String = ""
-        
     public init() {}
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            SQLabelTextField(label: "Old Password", title: "oldPassword", text: $oldPassword, placeholder: "", isPassword: true)
-            SQLabelTextField(label: "New Password", title: "newPassword", text: $newPassword, placeholder: "", isPassword: true)
-            SQLabelTextField(label: "Confirm Password", title: "confirmPassword", text: $confirmPassword, placeholder: "", isPassword: true)
+            SQLabelTextField(label: "Old Password", title: "oldPassword", text: $viewModel.oldPassword, placeholder: "", isPassword: true)
+            SQLabelTextField(label: "New Password", title: "newPassword", text: $viewModel.newPassword, placeholder: "", isPassword: true)
+            SQLabelTextField(label: "Confirm Password", title: "confirmPassword", text: $viewModel.confirmPassword, placeholder: "", isPassword: true)
 
             Spacer()
             
             SQButton(text: "Save", font: .bold, style: .default, size: 16) {
-                coordinator.pop()
+                viewModel.changePassword()
             }
         }
         .applyBackground()
@@ -37,7 +34,7 @@ public struct SQChangePasswordView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
-                    coordinator.pop()
+                    viewModel.navigateBack()
                 } label: {
                     Image(systemName: "chevron.left")
                         .bold()
@@ -47,13 +44,9 @@ public struct SQChangePasswordView: View {
             ToolbarItem(placement: .principal) {
                 SQText(text: "Change Password", font: .bold, color: .secondary, size: 24)
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    coordinator.popToRoot()
-                } label: {
-                    SQText(text: "Home", font: .bold, color: .accent, size: 16)
-                }
-            }
+        }
+        .onAppear {
+            viewModel.setCoordinator(coordinator)
         }
     }
 }
