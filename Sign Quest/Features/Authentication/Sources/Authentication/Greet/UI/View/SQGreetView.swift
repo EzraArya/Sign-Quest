@@ -11,6 +11,7 @@ import SignQuestCore
 
 public struct SQGreetView: View {
     @EnvironmentObject var coordinator: SQAuthenticationCoordinator
+    @StateObject private var viewModel = SQGreetViewModel()
 
     public init() {}
 
@@ -22,9 +23,11 @@ public struct SQGreetView: View {
         .applyBackground()
         .task {
             try? await Task.sleep(nanoseconds: 800_000_000)
-            UserDefaultsManager.shared.isLoggedIn = true
-            coordinator.showMainFlow()
+            viewModel.navigateToHome()
         }
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            viewModel.setCoordinator(coordinator)
+        }
     }
 }
