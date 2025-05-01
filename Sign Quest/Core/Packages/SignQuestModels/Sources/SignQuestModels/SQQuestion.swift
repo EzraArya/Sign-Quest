@@ -5,39 +5,58 @@
 //  Created by Ezra Arya Wijaya on 27/04/25.
 //
 
-enum SQQuestionType: String, Codable {
+public enum SQQuestionType: String, Codable, Sendable {
     case selectAlphabet
     case selectGesture
     case performGesture
 }
 
-struct SQQuestion: Codable, Identifiable, Hashable {
-    let id: String
-    let type: SQQuestionType
-    let content: SQQuestionContent
-    let correctAnswerIndex: Int
+public struct SQQuestion: Codable, Identifiable, Hashable, Sendable {
+    public let id: String
+    public let type: SQQuestionType
+    public let content: SQQuestionContent
+    public let correctAnswerIndex: Int
     
-    var correctAnswer: SQAnswer {
+    public var correctAnswer: SQAnswer {
         return content.answers[correctAnswerIndex]
     }
     
-    func hash(into hasher: inout Hasher) {
+    public init(id: String, type: SQQuestionType, content: SQQuestionContent, correctAnswerIndex: Int) {
+        self.id = id
+        self.type = type
+        self.content = content
+        self.correctAnswerIndex = correctAnswerIndex
+    }
+    
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
-    static func == (lhs: SQQuestion, rhs: SQQuestion) -> Bool {
+    public static func == (lhs: SQQuestion, rhs: SQQuestion) -> Bool {
         return lhs.id == rhs.id
     }
 }
 
-struct SQQuestionContent: Codable, Hashable {
-    let prompt: String
-    let isPromptImage: Bool
-    let answers: [SQAnswer]
-    let exampleImage: String?
+public struct SQQuestionContent: Codable, Hashable, Sendable {
+    public let prompt: String
+    public let isPromptImage: Bool
+    public let answers: [SQAnswer]
+    public let exampleImage: String?
+    
+    public init(prompt: String, isPromptImage: Bool, answers: [SQAnswer], exampleImage: String? = nil) {
+        self.prompt = prompt
+        self.isPromptImage = isPromptImage
+        self.answers = answers
+        self.exampleImage = exampleImage
+    }
 }
 
-struct SQAnswer: Codable, Hashable {
-    let value: String
-    let isImage: Bool
+public struct SQAnswer: Codable, Hashable, Sendable {
+    public let value: String
+    public let isImage: Bool
+    
+    public init(value: String, isImage: Bool) {
+        self.value = value
+        self.isImage = isImage
+    }
 }

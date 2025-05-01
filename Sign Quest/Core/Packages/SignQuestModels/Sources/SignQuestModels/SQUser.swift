@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SQUser: Hashable, Identifiable {
+public struct SQUser: Hashable, Identifiable, Sendable {
     public let id: String
     public var firstName: String
     public var lastName: String

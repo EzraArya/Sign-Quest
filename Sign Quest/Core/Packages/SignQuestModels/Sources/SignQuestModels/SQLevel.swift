@@ -7,29 +7,29 @@
 
 import Foundation
 
-enum SQLevelStatus: String, Codable {
+public enum SQLevelStatus: String, Codable, Sendable {
     case locked
     case available
     case completed
 }
 
-struct SQLevel: Codable, Identifiable, Hashable {
-    let id: String
-    let sectionId: String
-    let number: Int
-    let questions: [SQQuestion]
-    let minScore: Int
-    var status: SQLevelStatus
+public struct SQLevel: Codable, Identifiable, Hashable, Sendable {
+    public let id: String
+    public let sectionId: String
+    public let number: Int
+    public let questions: [SQQuestion]
+    public let minScore: Int
+    public var status: SQLevelStatus
     
-    var displayName: String {
+    public var displayName: String {
         return "\(number)"
     }
     
-    var progress: Double?
+    public var progress: Double?
     
-    var bestScore: Int?
+    public var bestScore: Int?
     
-    init(
+    public init(
         id: String = UUID().uuidString,
         sectionId: String,
         number: Int,
@@ -45,12 +45,12 @@ struct SQLevel: Codable, Identifiable, Hashable {
         self.status = status
     }
     
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
     // Equality based on ID
-    static func == (lhs: SQLevel, rhs: SQLevel) -> Bool {
+    public static func == (lhs: SQLevel, rhs: SQLevel) -> Bool {
         return lhs.id == rhs.id
     }
 }

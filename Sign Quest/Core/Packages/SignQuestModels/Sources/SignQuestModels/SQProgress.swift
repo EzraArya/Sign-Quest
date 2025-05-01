@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct SQProgress: Codable, Identifiable {
-    let id: String
-    let userId: String
-    let sectionId: String
-    let levelId: String
-    let score: Int
-    let completedAt: Date
+public struct SQProgress: Codable, Identifiable {
+    public let id: String
+    public let userId: String
+    public let sectionId: String
+    public let levelId: String
+    public let score: Int
+    public let completedAt: Date
     
-    init(
+    public init(
         id: String = UUID().uuidString,
         userId: String,
         sectionId: String,
