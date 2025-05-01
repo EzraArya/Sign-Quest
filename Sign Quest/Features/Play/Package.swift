@@ -30,7 +30,7 @@ let package = Package(
                 .product(name: "YOLO", package: "yolo-ios-app")
             ],
             resources: [
-                .copy("Games/Model/yolo.mlmodel")
+                .copy("Model/yolo.mlmodel")
             ]
         ),
         .testTarget(
