@@ -15,10 +15,12 @@ public struct SQUser: Hashable, Identifiable, Sendable {
     public var age: Int
     public var password: String
     public var createdAt: Date
+    public var image: String?
     
     public var currentLevel: String?
+    public var totalScore: Int = 0
     
-    public init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil) {
+    public init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil, totalScore: Int = 0, image: String? = nil) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
@@ -27,6 +29,8 @@ public struct SQUser: Hashable, Identifiable, Sendable {
         self.password = password
         self.createdAt = createdAt
         self.currentLevel = currentLevel
+        self.totalScore = totalScore
+        self.image = image
     }
     
     public var fullName: String {

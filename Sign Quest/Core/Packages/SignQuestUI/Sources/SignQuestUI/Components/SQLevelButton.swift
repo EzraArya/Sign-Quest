@@ -65,6 +65,7 @@ public enum SQLevelButtonStyle {
         }
     }
 }
+
 public struct SQLevelButton: View {
     var level: String
     var style: SQLevelButtonStyle
@@ -103,6 +104,7 @@ public struct SQLevelButton: View {
                         activePopupBinding.wrappedValue = level
                     }
                 }
+            } label: {
                 SQText(text: level, font: .bold, color: style.textColor, size: 18)
                     .frame(width: 50, height: 50)
                     .background(style.backgroundColor.color)

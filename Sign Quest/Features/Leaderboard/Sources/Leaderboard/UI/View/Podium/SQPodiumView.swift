@@ -1,67 +1,22 @@
 //
-//  SQLeaderboardView.swift
+//  SQPodiumView.swift
 //  Leaderboard
 //
-//  Created by Ezra Arya Wijaya on 24/04/25.
+//  Created by Ezra Arya Wijaya on 02/05/25.
 //
 
 import SwiftUI
 import SignQuestUI
+import SignQuestModels
 
-struct Player: Identifiable {
-    let id = UUID()
-    let name: String
-    let score: Int
-    let avatar: String
-}
-
-public struct SQLeaderboardView: View {
-    @EnvironmentObject var coordinator: SQLeaderboardCoordinator
+public struct SQPodiumView: View {
+    let players: [SQUser]
     
-    let players: [Player] = [
-        Player(name: "Alice", score: 150, avatar: "person"),
-        Player(name: "Bob", score: 140, avatar: "person"),
-        Player(name: "Charlie", score: 130, avatar: "person"),
-        Player(name: "David", score: 120, avatar: "person"),
-        Player(name: "Eve", score: 110, avatar: "person")
-    ]
-    
-    public init() {}
-    
-    public var body: some View {
-        ScrollView {
-            SQText(text: "Leaderboard", font: .bold, color: .secondary, size: 24)
-            
-            VStack(spacing: 32) {
-                if players.count >= 3 {
-                    SQPodiumView(players: Array(players.prefix(3)))
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(players.dropFirst(3).enumerated().map({ $0 }), id: \.element.id) { index, player in
-                        HStack {
-                            SQText(text: "\(index + 4). \(player.name)", font: .medium, color: .text, size: 12)
-                            Spacer()
-                            SQText(text: "\(player.score)", font: .bold, color: .text, size: 12)
-                        }
-                        .padding()
-                        .applyBackground()
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(SQColor.accent.color, lineWidth: 2)
-                        )
-                    }
-                }
-                .padding(.horizontal)
-            }
-            .padding()
-        }
-        .applyBackground()
+    public init(players: [SQUser]) {
+        self.players = players
     }
     
-    @ViewBuilder
-    func SQPodiumView(players: [Player]) -> some View {
+    public var body: some View {
         let podiumOrder = [1, 0, 2] // 2nd, 1st, 3rd places
         
         HStack(alignment: .bottom, spacing: 0) {
@@ -73,7 +28,7 @@ public struct SQLeaderboardView: View {
     }
     
     @ViewBuilder
-    private func PodiumItem(player: Player, position: Int) -> some View {
+    private func PodiumItem(player: SQUser, position: Int) -> some View {
         let height: CGFloat = heightForPosition(position)
         let podiumIconName = iconNameForPosition(position)
         let podiumIconColor = colorForPosition(position)
@@ -81,8 +36,8 @@ public struct SQLeaderboardView: View {
         VStack {
             PlayerAvatarView(player: player, borderColor: podiumIconColor)
             
-            SQText(text: player.name, font: .medium, color: .text, size: 12)
-            SQText(text: "\(player.score)", font: .bold, color: .complementary, size: 16)
+            SQText(text: player.firstName, font: .medium, color: .text, size: 12)
+            SQText(text: "\(player.totalScore)", font: .bold, color: .complementary, size: 16)
             
             PodiumBase(position: position, height: height, podiumIconName: podiumIconName, podiumIconColor: podiumIconColor)
         }
@@ -90,7 +45,7 @@ public struct SQLeaderboardView: View {
     }
     
     @ViewBuilder
-    private func PlayerAvatarView(player: Player, borderColor: Color) -> some View {
+    private func PlayerAvatarView(player: SQUser, borderColor: Color) -> some View {
         if let uiImage = UIImage(named: "ayame", in: .module, compatibleWith: nil) {
             Image(uiImage: uiImage)
                 .resizable()
@@ -102,7 +57,7 @@ public struct SQLeaderboardView: View {
                         .stroke(borderColor, lineWidth: 2)
                 )
         } else {
-            Image(systemName: player.avatar)
+            Image(systemName: player.image ?? "person")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 60, height: 60)
