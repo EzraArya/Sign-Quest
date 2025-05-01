@@ -18,7 +18,6 @@ public final class UserDefaultsManager: @unchecked Sendable {
         get { defaults.bool(forKey: onboardingKey) }
         set {
             defaults.set(newValue, forKey: onboardingKey)
-            defaults.synchronize()
         }
     }
     
