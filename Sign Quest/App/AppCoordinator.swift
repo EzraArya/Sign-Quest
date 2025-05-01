@@ -27,6 +27,11 @@ public enum AppState {
 
 @MainActor
 public class AppCoordinator: AppCoordinatorProtocol {
+    // Initialize the appState based on the user's progress:
+    // - If onboarding is completed, check if the user is logged in:
+    //   - If logged in, set the state to .mainFlow.
+    //   - Otherwise, set the state to .login.
+    // - If onboarding is not completed, set the state to .onboarding.
     @Published public var appState: AppState = {
         let defaults = UserDefaultsManager.shared
         if defaults.isOnboardingCompleted {
