@@ -9,14 +9,14 @@ import Foundation
 
 public struct SQUser: Hashable, Identifiable {
     public let id: String
-    var firstName: String
-    var lastName: String
-    var email: String
-    var age: Int
-    var password: String
-    var createdAt: Date
+    public var firstName: String
+    public var lastName: String
+    public var email: String
+    public var age: Int
+    public var password: String
+    public var createdAt: Date
     
-    var currentLevel: String?
+    public var currentLevel: String?
     
     public init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil) {
         self.id = id
@@ -26,9 +26,10 @@ public struct SQUser: Hashable, Identifiable {
         self.age = age
         self.password = password
         self.createdAt = createdAt
+        self.currentLevel = currentLevel
     }
     
-    var fullName: String {
+    public var fullName: String {
         return "\(firstName) \(lastName)"
     }
 }
