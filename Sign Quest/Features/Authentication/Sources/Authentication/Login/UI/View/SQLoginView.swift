@@ -48,9 +48,10 @@ public struct SQLoginView: View {
             SQButton(text: "Sign In", font: .bold, style: .default, size: 16) {
                 viewModel.validateInput(isEmailActive: isEmailActive, isPasswordActive: isPasswordActive)
                 if !viewModel.hasError {
-                    coordinator.push(.greet)
+                    viewModel.login()
                 }
             }
+            .padding(.bottom, 16)
 
         }
         .padding(.top, 16)
@@ -60,9 +61,7 @@ public struct SQLoginView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    Task {
-                        coordinator.showOnboarding()
-                    }
+                    viewModel.navigateBack()
                 } label: {
                     Image(systemName: "chevron.left")
                         .bold()
@@ -72,6 +71,9 @@ public struct SQLoginView: View {
             ToolbarItem(placement: .principal) {
                 SQText(text: "Enter your details", font: .bold, color: .secondary, size: 20)
             }
+        }
+        .onAppear {
+            viewModel.setCoordinator(coordinator)
         }
     }
 }
