@@ -121,6 +121,7 @@ extension SQProfileViewModel {
     }
     
     func fetchUserProfile() {
+        // TODO: Replace hardcoded placeholder data with real user data fetched from an API or a proper data source.
         self.user = SQUser(firstName: "John", lastName: "Doe", email: "johndoe@gmail.com", age: 18, password: "pass")
     }
 }
