@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct SQUser: Hashable, Identifiable {
-    let id: String
+public struct SQUser: Hashable, Identifiable {
+    public let id: String
     var firstName: String
     var lastName: String
     var email: String
@@ -18,7 +18,7 @@ struct SQUser: Hashable, Identifiable {
     
     var currentLevel: String?
     
-    init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil) {
+    public init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
