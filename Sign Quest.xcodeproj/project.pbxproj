@@ -15,6 +15,7 @@
 		6368101D2DB7F470007A482C /* Profile in Frameworks */ = {isa = PBXBuildFile; productRef = 6368101C2DB7F470007A482C /* Profile */; };
 		63841BA12DB6965800692236 /* Onboarding in Frameworks */ = {isa = PBXBuildFile; productRef = 63841BA02DB6965800692236 /* Onboarding */; };
 		63841BA42DB6966A00692236 /* Authentication in Frameworks */ = {isa = PBXBuildFile; productRef = 63841BA32DB6966A00692236 /* Authentication */; };
+		63988B052DC2A29300548D82 /* SignQuestCore in Frameworks */ = {isa = PBXBuildFile; productRef = 63988B042DC2A29300548D82 /* SignQuestCore */; };
 		63AF74062DB9524300DED239 /* SignQuestUI in Frameworks */ = {isa = PBXBuildFile; productRef = 63AF74052DB9524300DED239 /* SignQuestUI */; };
 		63C07E9B2DBA23C100829842 /* SignQuestInterfaces in Frameworks */ = {isa = PBXBuildFile; productRef = 63C07E9A2DBA23C100829842 /* SignQuestInterfaces */; };
 /* End PBXBuildFile section */
@@ -47,6 +48,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Core/Model/yolo.mlmodel,
+				Core/Packages/SignQuestCore,
 				Core/Packages/SignQuestInterfaces,
 				Core/Packages/SignQuestModels,
 				Core/Packages/SignQuestUI,
@@ -109,6 +111,7 @@
 				636810192DB7F470007A482C /* Home in Frameworks */,
 				6368101B2DB7F470007A482C /* Leaderboard in Frameworks */,
 				63841BA12DB6965800692236 /* Onboarding in Frameworks */,
+				63988B052DC2A29300548D82 /* SignQuestCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,6 +182,7 @@
 				63C07E9A2DBA23C100829842 /* SignQuestInterfaces */,
 				63158D902DBC1EB9009A1738 /* Play */,
 				634A202A2DBF88880055B257 /* YOLO */,
+				63988B042DC2A29300548D82 /* SignQuestCore */,
 			);
 			productName = "Sign Quest";
 			productReference = 63841B2D2DB689DA00692236 /* Sign Quest.app */;
@@ -269,6 +273,7 @@
 				63C07E992DBA23C100829842 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestInterfaces" */,
 				63158D8F2DBC1EB9009A1738 /* XCLocalSwiftPackageReference "Sign Quest/Features/Play" */,
 				634A20292DBF88880055B257 /* XCRemoteSwiftPackageReference "yolo-ios-app" */,
+				63988B032DC2A29300548D82 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestCore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63841B2E2DB689DA00692236 /* Products */;
@@ -655,6 +660,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "Sign Quest/Features/Authentication";
 		};
+		63988B032DC2A29300548D82 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "Sign Quest/Core/Packages/SignQuestCore";
+		};
 		63AF74042DB9524300DED239 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "Sign Quest/Core/Packages/SignQuestUI";
@@ -709,6 +718,10 @@
 		63841BA32DB6966A00692236 /* Authentication */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Authentication;
+		};
+		63988B042DC2A29300548D82 /* SignQuestCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SignQuestCore;
 		};
 		63AF74052DB9524300DED239 /* SignQuestUI */ = {
 			isa = XCSwiftPackageProductDependency;

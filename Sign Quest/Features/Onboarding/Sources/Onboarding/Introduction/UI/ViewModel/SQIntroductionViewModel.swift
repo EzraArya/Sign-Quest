@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SignQuestCore
 
 struct IntroductionPage {
     let title: String
@@ -19,4 +20,19 @@ class SQIntroductionViewModel: ObservableObject {
         IntroductionPage(title: "A Place to Learn", boldTitle: "SIBI", subtitle: "Practice signs, complete challenges, and track your progress."),
         IntroductionPage(title: "Ready to", boldTitle: "Start?", subtitle: "Create your account and begin your quest today.")
     ]
+    private var coordinator: SQOnboardingCoordinator?
+    
+    public func setCoordinator(_ coordinator: SQOnboardingCoordinator) {
+        self.coordinator = coordinator
+    }
+    
+    @MainActor
+    public func navigateToRegistration() {
+        UserDefaultsManager.shared.isOnboardingCompleted = true
+        coordinator?.showAuthentication(isLogin: false)
+    }
+    
+    public func navigateBack() {
+        coordinator?.pop()
+    }
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 import SignQuestUI
 import Combine
+import SignQuestCore
 
 public struct SQWelcomeView: View {
     @EnvironmentObject private var coordinator: SQOnboardingCoordinator
@@ -23,9 +24,7 @@ public struct SQWelcomeView: View {
                 SQText(text: viewModel.title, font: .bold, color: .secondary, size: 24)
                     .frame(maxWidth: .infinity, alignment: .center)
                 SQButton(text: viewModel.buttonTitle, font: .bold, style: .default, size: 16) {
-                    Task { @MainActor in
-                        coordinator.showAuthentication(isLogin: true)
-                    }
+                    viewModel.navigateToAuthentication()
                 }
             }
             
@@ -35,12 +34,15 @@ public struct SQWelcomeView: View {
                 SQText(text: viewModel.subtitle, font: .bold, color: .secondary, size: 24)
                     .frame(maxWidth: .infinity, alignment: .center)
                 SQButton(text: viewModel.buttonSubtitle, font: .bold, style: .secondary, size: 16) {
-                    coordinator.push(.introduction)
+                    viewModel.navigateToIntroduction()
                 }
             }
             Spacer()
         }
         .padding(.horizontal, 24)
         .applyBackground()
+        .onAppear {
+            viewModel.setCoordinator(coordinator)
+        }
     }
 }

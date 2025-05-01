@@ -15,6 +15,7 @@ import Home
 import Leaderboard
 import Profile
 import Play
+import SignQuestCore
 
 public enum AppState {
     case onboarding
@@ -26,7 +27,23 @@ public enum AppState {
 
 @MainActor
 public class AppCoordinator: AppCoordinatorProtocol {
-    @Published public var appState: AppState = .mainFlow
+    // Initialize the appState based on the user's progress:
+    // - If onboarding is completed, check if the user is logged in:
+    //   - If logged in, set the state to .mainFlow.
+    //   - Otherwise, set the state to .login.
+    // - If onboarding is not completed, set the state to .onboarding.
+    @Published public var appState: AppState = {
+        let defaults = UserDefaultsManager.shared
+        if defaults.isOnboardingCompleted {
+            if defaults.isLoggedIn {
+                return .mainFlow
+            } else {
+                return .login
+            }
+        } else {
+            return .onboarding
+        }
+    }()
     
     public init() {}
         
