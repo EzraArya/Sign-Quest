@@ -9,8 +9,19 @@ import SwiftUI
 import SignQuestUI
 
 public struct SQGamesTypeTwoPage: View {
+    let promptText: String
+    let answerOptions: [String]
+    let onAnswerSelected: (Int) -> Void
     
-    public init() {}
+    public init(
+        promptText: String,
+        answerOptions: [String],
+        onAnswerSelected: @escaping (Int) -> Void
+    ) {
+        self.promptText = promptText
+        self.answerOptions = answerOptions
+        self.onAnswerSelected = onAnswerSelected
+    }
 
     public var body: some View {
         VStack(alignment: .leading) {
@@ -32,13 +43,11 @@ public struct SQGamesTypeTwoPage: View {
             Spacer()
 
             VStack(spacing: 36){
-                SQText(text: "A", font: .bold, color: .secondary, size: 64)
+                SQText(text: promptText, font: .bold, color: .secondary, size: 64)
                 
                 SQAnswerGridView(
-                    answerOptions: ["hand.raised", "hand.point.left", "hand.draw", "hand.wave"],
-                    onAnswerSelected: { index in
-                        print("Selected answer index: \(index)")
-                    },
+                    answerOptions: answerOptions,
+                    onAnswerSelected: onAnswerSelected,
                     isImage: true
                 )
             }
