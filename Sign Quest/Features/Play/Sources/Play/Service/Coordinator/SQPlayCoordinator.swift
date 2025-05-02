@@ -88,6 +88,7 @@ public class SQPlayCoordinator: NavigationCoordinatorProtocol, SheetCoordinatorP
     
     @MainActor
     public func navigateToHome() {
+        SQPlayViewModel.shared.reset()
         appCoordinator?.startMainFlow()
     }
     

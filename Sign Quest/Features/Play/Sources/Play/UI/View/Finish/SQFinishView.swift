@@ -11,13 +11,19 @@ import SignQuestUI
 
 public struct SQFinishView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
+    @StateObject private var sharedViewModel = SQPlayViewModel.shared
 
     public init() {}
 
     public var body: some View {
         VStack(spacing: 16) {
             SQText(text: "😆", font: .bold, color: .text, size: 76)
-            SQText(text: "Level Complete!", font: .bold, color: .text, size: 24)
+            SQText(
+                text: sharedViewModel.isLevelCompleted ? "Level Complete!" : "Level Attempted!",
+                font: .bold,
+                color: .text,
+                size: 24
+            )
         }
         .applyBackground()
         .task {

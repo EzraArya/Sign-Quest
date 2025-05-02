@@ -13,9 +13,15 @@ import PhotosUI
 public struct SQGamesTypeThreePage: View {
     @StateObject private var viewModel = SQGamesTypeThreeViewModel()
     @EnvironmentObject var coordinator: SQPlayCoordinator
+    @EnvironmentObject var gamesViewModel: SQGamesViewModel
     @Binding private var parentSelectedImage: UIImage?
+    let promptText: String
     
-    public init(selectedImage: Binding<UIImage?>) {
+    public init(
+        promptText: String,
+        selectedImage: Binding<UIImage?>
+    ) {
+        self.promptText = promptText
         self._parentSelectedImage = selectedImage
     }
     
@@ -30,7 +36,7 @@ public struct SQGamesTypeThreePage: View {
             HStack{
                 Spacer()
                 VStack(alignment: .center, spacing: 36){
-                    SQText(text: "A", font: .bold, color: .text, size: 64)
+                    SQText(text: promptText, font: .bold, color: .text, size: 64)
                     
                     if let image = viewModel.selectedImage {
                         Image(uiImage: image)
@@ -60,6 +66,13 @@ public struct SQGamesTypeThreePage: View {
                             .background(SQColor.textbox.color)
                             .cornerRadius(8)
                             .padding(.top, 12)
+                            
+                            Button("Submit") {
+                                let isCorrect = label.lowercased() == promptText.lowercased()
+                                gamesViewModel.selectAnswer(at: isCorrect ? 0 : 1)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .padding(.top, 12)
                         }
                     } else {
                         Text("Select an image")
@@ -79,6 +92,7 @@ public struct SQGamesTypeThreePage: View {
             SQButton(text: viewModel.setButtonText(), font: .bold, style: .secondary, size: 16) {
                 coordinator.presentSheet(.camera($viewModel.selectedImage))
             }
+            .padding(.horizontal, 24)
             .padding(.bottom, 12)
         }
         .applyBackground()
