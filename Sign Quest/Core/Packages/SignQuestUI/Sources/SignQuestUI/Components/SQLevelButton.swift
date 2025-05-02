@@ -72,6 +72,7 @@ public struct SQLevelButton: View {
     var title: String
     var subtitle: String
     var action: (() -> Void)?
+    var activePopupBinding: Binding<String?>
 
     @State private var showPopup = false
 
@@ -80,21 +81,28 @@ public struct SQLevelButton: View {
         style: SQLevelButtonStyle = .default,
         title: String = "Level",
         subtitle: String = "Complete this level",
-        buttonTitle: String = "Start",
+        activePopup: Binding<String?>,
         action: (() -> Void)? = nil
     ) {
         self.level = level
         self.style = style
         self.title = title
         self.subtitle = subtitle
+        self.activePopupBinding = activePopup
         self.action = action
     }
 
     public var body: some View {
         ZStack(alignment: .center) {
             Button {
-                withAnimation(.spring()) {
-                    showPopup.toggle()
+                withAnimation {
+                    if activePopupBinding.wrappedValue == level {
+                        // Close popup if it's already open
+                       activePopupBinding.wrappedValue = nil
+                    } else {
+                        // Open this popup, closing any others
+                        activePopupBinding.wrappedValue = level
+                    }
                 }
             } label: {
                 SQText(text: level, font: .bold, color: style.textColor, size: 18)
@@ -104,16 +112,14 @@ public struct SQLevelButton: View {
                     .shadow(color: SQColor.accent.color.opacity(0.3), radius: 0, x: 0, y: 4)
             }
             
-            if showPopup {
+            if activePopupBinding.wrappedValue == level {
                 SQChatBubblePopup(
                     title: title,
                     subtitle: effectiveSubtitle,
                     buttonTitle: style.popupButtonTitle,
                     style: style.popupStyle,
                     buttonAction: {
-                        withAnimation(.spring()) {
-                            showPopup = false
-                        }
+                        activePopupBinding.wrappedValue = nil
                         action?()
                     }
                 )

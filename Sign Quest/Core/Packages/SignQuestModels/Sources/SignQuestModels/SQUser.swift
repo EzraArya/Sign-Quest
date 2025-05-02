@@ -7,18 +7,20 @@
 
 import Foundation
 
-struct SQUser: Hashable, Identifiable {
-    let id: String
-    var firstName: String
-    var lastName: String
-    var email: String
-    var age: Int
-    var password: String
-    var createdAt: Date
+public struct SQUser: Hashable, Identifiable, Sendable {
+    public let id: String
+    public var firstName: String
+    public var lastName: String
+    public var email: String
+    public var age: Int
+    public var password: String
+    public var createdAt: Date
+    public var image: String?
     
-    var currentLevel: String?
+    public var currentLevel: String?
+    public var totalScore: Int = 0
     
-    init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil) {
+    public init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil, totalScore: Int = 0, image: String? = nil) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
@@ -26,9 +28,12 @@ struct SQUser: Hashable, Identifiable {
         self.age = age
         self.password = password
         self.createdAt = createdAt
+        self.currentLevel = currentLevel
+        self.totalScore = totalScore
+        self.image = image
     }
     
-    var fullName: String {
+    public var fullName: String {
         return "\(firstName) \(lastName)"
     }
 }

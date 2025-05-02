@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct SQGameSession: Codable, Identifiable {
-    let id: String
-    let userId: String
-    let levelId: String
-    var currentQuestionIndex: Int
-    var answeredQuestions: [String: Bool]
-    var score: Int
-    var startTime: Date
+public struct SQGameSession: Codable, Identifiable, Sendable {
+    public let id: String
+    public let userId: String
+    public let levelId: String
+    public var currentQuestionIndex: Int
+    public var answeredQuestions: [String: Bool]
+    public var score: Int
+    public var startTime: Date
     
-    init(
+    public init(
         id: String = UUID().uuidString,
         userId: String,
         levelId: String,
