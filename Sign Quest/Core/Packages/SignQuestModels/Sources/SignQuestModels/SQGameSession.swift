@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SQGameSession: Codable, Identifiable {
+public struct SQGameSession: Codable, Identifiable, Sendable {
     public let id: String
     public let userId: String
     public let levelId: String
