@@ -10,6 +10,7 @@ import SignQuestUI
 
 public struct SQLoadingView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
+    @StateObject private var sharedViewModel = SQPlayViewModel.shared
 
     public init() {}
 
@@ -20,6 +21,9 @@ public struct SQLoadingView: View {
         }
         .applyBackground()
         .task {
+            // Reset shared view model when starting a new game
+            sharedViewModel.reset()
+            
             try? await Task.sleep(nanoseconds: 800_000_000)
             coordinator.push(.games)
         }
