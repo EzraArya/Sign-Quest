@@ -10,6 +10,7 @@ import SignQuestUI
 
 public struct SQScoreView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
+    @StateObject private var sharedViewModel = SQPlayViewModel.shared
 
     public init() {}
     
@@ -18,9 +19,37 @@ public struct SQScoreView: View {
             Spacer()
             
             VStack(alignment: .center, spacing: 8) {
-                SQText(text: "🥳", font: .bold, color: .text, size: 76)
+                SQText(
+                    text: sharedViewModel.isLevelCompleted ? "🥳" : "😊",
+                    font: .bold,
+                    color: .text,
+                    size: 76
+                )
                 SQText(text: "Your Score", font: .bold, color: .text, size: 24)
-                SQText(text: "1000", font: .bold, color: .complementary, size: 32)
+                SQText(
+                    text: "\(sharedViewModel.finalScore)",
+                    font: .bold,
+                    color: sharedViewModel.isLevelCompleted ? .complementary : .secondary,
+                    size: 32
+                )
+                
+                if sharedViewModel.isLevelCompleted {
+                    SQText(
+                        text: "Level Completed!",
+                        font: .bold,
+                        color: .complementary,
+                        size: 18
+                    )
+                    .padding(.top, 8)
+                } else {
+                    SQText(
+                        text: "Keep practicing!",
+                        font: .bold,
+                        color: .secondary,
+                        size: 18
+                    )
+                    .padding(.top, 8)
+                }
             }
             
             Spacer()
