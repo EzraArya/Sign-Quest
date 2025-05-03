@@ -22,7 +22,7 @@ public struct SQSettingView: View {
                 coordinator.dismissSheet()
             }
             SQButton(text: "END SESSION", font: .bold, style: .danger, size: 16) {
-                coordinator.navigateToHome()
+                coordinator.push(.finish)
             }
             
             Spacer()
