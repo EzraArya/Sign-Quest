@@ -15,14 +15,17 @@ public struct SQGamesTypeThreePage: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
     @EnvironmentObject var gamesViewModel: SQGamesViewModel
     @Binding private var parentSelectedImage: UIImage?
+    @Binding private var gestureLabel: String?
     let promptText: String
     
     public init(
         promptText: String,
-        selectedImage: Binding<UIImage?>
+        selectedImage: Binding<UIImage?>,
+        gestureLabel: Binding<String?>
     ) {
         self.promptText = promptText
         self._parentSelectedImage = selectedImage
+        self._gestureLabel = gestureLabel
     }
     
     public var body: some View {
@@ -49,6 +52,7 @@ public struct SQGamesTypeThreePage: View {
                                     .stroke(SQColor.primary.color, lineWidth: 2)
                             )
                         
+                        #if Debug
                         if let (label, confidence) = viewModel.getTopDetection() {
                             HStack {
                                 Text(label)
@@ -66,14 +70,8 @@ public struct SQGamesTypeThreePage: View {
                             .background(SQColor.textbox.color)
                             .cornerRadius(8)
                             .padding(.top, 12)
-                            
-                            Button("Submit") {
-                                let isCorrect = label.lowercased() == promptText.lowercased()
-                                gamesViewModel.selectAnswer(at: isCorrect ? 0 : 1)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .padding(.top, 12)
                         }
+                        #endif
                     } else {
                         Text("Select an image")
                             .foregroundStyle(SQColor.accent.color)
@@ -92,8 +90,6 @@ public struct SQGamesTypeThreePage: View {
             SQButton(text: viewModel.setButtonText(), font: .bold, style: .secondary, size: 16) {
                 coordinator.presentSheet(.camera($viewModel.selectedImage))
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 12)
         }
         .applyBackground()
         .toolbar(.hidden, for: .tabBar)
@@ -109,6 +105,7 @@ public struct SQGamesTypeThreePage: View {
         }
         .onChange(of: parentSelectedImage) { _, newImage in
             viewModel.selectedImage = newImage
+            self.gestureLabel = viewModel.getTopDetection()?.label
         }
         .onAppear {
             viewModel.selectedImage = parentSelectedImage
