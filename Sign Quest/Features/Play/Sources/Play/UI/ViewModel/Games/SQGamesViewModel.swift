@@ -21,6 +21,7 @@ class SQGamesViewModel: ObservableObject {
     @Published var progressPercentage: Double = 0
     @Published var score: Int = 0
     @Published var isProcessingGesture: Bool = false
+    @Published var gestureLabel: String?
     
     // User information
     private var userId: String
@@ -84,50 +85,64 @@ class SQGamesViewModel: ObservableObject {
     }
     
     // MARK: - Answer Handling
-    func selectAnswer(at index: Int) {
-        // Only process the answer if one hasn't been selected yet or if it's a gesture recognition
-        guard selectedAnswerIndex == nil || getQuestionType() == .performGesture else {
-            print("Answer already selected - ignoring additional selection")
-            return
-        }
-        
-        selectedAnswerIndex = index
-        
+    // Single method for verifying any type of answer
+    func verifyAnswer(detectedGesture: String? = nil, expectedLabel: String? = nil) {
         guard let question = currentQuestion else { return }
         
-        var isCorrect = false
+        // Determine if the answer is correct based on question type
+        let isCorrect: Bool
         
-        if question.type == .performGesture {
-            // For performGesture, we assume the image recognition system
-            // already determined if it's correct (typically index 0)
-            isCorrect = (index == 0)
-            print("Performance gesture answer: \(isCorrect ? "correct" : "incorrect")")
-        } else {
-            isCorrect = (index == question.correctAnswerIndex)
-            print("Selected answer \(index) for question \(question.id), correct answer is \(question.correctAnswerIndex)")
+        switch question.type {
+        case .performGesture:
+            // For gesture questions, verify the detected gesture
+            guard let detected = detectedGesture, let expected = expectedLabel else {
+                print("Missing detected or expected label for gesture verification")
+                return
+            }
+            isCorrect = detected.lowercased() == expected.lowercased()
+            print("Gesture detection: \(detected) vs expected: \(expected) - \(isCorrect ? "correct" : "incorrect")")
+            
+        case .selectAlphabet, .selectGesture:
+            // For choice questions, verify selected index matches correct index
+            guard let selectedIndex = selectedAnswerIndex else {
+                print("No answer selected for verification")
+                return
+            }
+            isCorrect = (selectedIndex == question.correctAnswerIndex)
+            print("Selected answer \(selectedIndex) for question \(question.id), correct: \(isCorrect)")
         }
         
+        // Update the answer state
         isAnswerCorrect = isCorrect
         
-        // Update session data
-        if let session = gameSession {
-            var updatedSession = session
-            updatedSession.answeredQuestions[question.id] = isCorrect
-            if isCorrect {
-                updatedSession.score += 25
-                print("Correct answer! +25 points")
-            } else {
-                print("Incorrect answer, no points added")
-            }
-            
-            gameSession = updatedSession
-            score = updatedSession.score
-            
-            SQPlayViewModel.shared.updateScore(updatedSession.score)
-            print("Updated SQPlayViewModel.shared score to \(updatedSession.score)")
-        }
+        // Update session score
+        updateSessionScore(questionId: question.id, isCorrect: isCorrect)
     }
+
+    // Helper to update the session score
+    private func updateSessionScore(questionId: String, isCorrect: Bool) {
+        guard var session = gameSession else { return }
         
+        // Record the answer
+        session.answeredQuestions[questionId] = isCorrect
+        
+        // Update score if correct
+        if isCorrect {
+            session.score += 25
+            print("Correct answer! +25 points")
+        } else {
+            print("Incorrect answer, no points added")
+        }
+        
+        // Update session and score
+        gameSession = session
+        score = session.score
+        
+        // Update shared score
+        SQPlayViewModel.shared.updateScore(session.score)
+        print("Updated score to \(session.score)")
+    }
+    
     // MARK: - Game Progress
     private func updateProgress() {
         guard let level = currentLevel, !level.questions.isEmpty else { return }
@@ -176,14 +191,25 @@ class SQGamesViewModel: ObservableObject {
     
     // MARK: - Sample Data (for demonstration)
     private func createSampleQuestions() -> [SQQuestion] {
-        // Create sample questions based on the three game types in your UI
-        
-        // Type 1: Select Alphabet
-        let alphabetQuestion = SQQuestion(
+        return [
+            addAlphabetQuestion(prompt: "hand.raised", correctIndex: 0),
+            addGestureQuestion(prompt: "A", correctIndex: 1),
+            addPerformQuestion(prompt: "A", alphabet: "A"),
+            addGestureQuestion(prompt: "B", correctIndex: 0),
+            addPerformQuestion(prompt: "C", alphabet: "C"),
+            addGestureQuestion(prompt: "C", correctIndex: 1),
+            addPerformQuestion(prompt: "Y", alphabet: "Y"),
+        ]
+    }
+}
+
+extension SQGamesViewModel {
+    func addAlphabetQuestion(prompt: String, correctIndex: Int) -> SQQuestion{
+        return SQQuestion(
             id: UUID().uuidString,
             type: .selectAlphabet,
             content: SQQuestionContent(
-                prompt: "hand.raised.fill",
+                prompt: prompt,
                 isPromptImage: true,
                 answers: [
                     SQAnswer(value: "A", isImage: false),
@@ -192,15 +218,16 @@ class SQGamesViewModel: ObservableObject {
                     SQAnswer(value: "D", isImage: false)
                 ]
             ),
-            correctAnswerIndex: 0
+            correctAnswerIndex: correctIndex
         )
-        
-        // Type 2: Select Gesture
-        let gestureQuestion = SQQuestion(
+    }
+    
+    func addGestureQuestion(prompt: String, correctIndex: Int) -> SQQuestion{
+        return SQQuestion(
             id: UUID().uuidString,
             type: .selectGesture,
             content: SQQuestionContent(
-                prompt: "A",
+                prompt: prompt,
                 isPromptImage: false,
                 answers: [
                     SQAnswer(value: "hand.raised", isImage: true),
@@ -209,23 +236,22 @@ class SQGamesViewModel: ObservableObject {
                     SQAnswer(value: "hand.wave", isImage: true)
                 ]
             ),
-            correctAnswerIndex: 0
+            correctAnswerIndex: correctIndex
         )
-        
-        // Type 3: Perform Gesture
-        let performQuestion = SQQuestion(
+    }
+    
+    func addPerformQuestion(prompt: String, alphabet: String) -> SQQuestion{
+        return SQQuestion(
             id: UUID().uuidString,
             type: .performGesture,
             content: SQQuestionContent(
-                prompt: "A",
+                prompt: prompt,
                 isPromptImage: false,
                 answers: [
-                    SQAnswer(value: "A", isImage: false)
+                    SQAnswer(value: alphabet, isImage: false)
                 ]
             ),
             correctAnswerIndex: 0
         )
-        
-        return [alphabetQuestion, gestureQuestion, performQuestion, alphabetQuestion]
     }
 }
