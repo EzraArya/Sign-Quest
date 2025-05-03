@@ -27,6 +27,14 @@ public enum SQColor {
     case green
     
     public var color: Color {
+        baseColor.opacity(1.0)
+    }
+        
+    public func opacity(_ opacity: Double) -> Color {
+        baseColor.opacity(opacity)
+    }
+    
+    public var baseColor: Color {
         switch self {
         case .primary:
             return Color("Primary", bundle: .module)
