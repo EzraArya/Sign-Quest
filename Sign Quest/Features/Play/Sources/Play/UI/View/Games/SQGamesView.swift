@@ -85,38 +85,7 @@ public struct SQGamesView: View {
                 style: determineButtonStyle(),
                 isCorrect: viewModel.isAnswerCorrect ?? false
             ) {
-                if !canProceed() {
-                    return
-                }
-                
-                if isVerified {
-                    // Already verified, move to next question
-                    if viewModel.isLastQuestion() {
-                        coordinator.push(.finish)
-                    } else {
-                        viewModel.moveToNextQuestion()
-                        // Reset state for next question
-                        cameraImage = nil
-                        gestureLabel = nil
-                        isVerified = false
-                        viewModel.selectedAnswerIndex = nil
-                        viewModel.isAnswerCorrect = nil
-                    }
-                } else {
-                    // Verify the answer
-                    if viewModel.getQuestionType() == .performGesture,
-                       let detectedLabel = gestureLabel,
-                       let question = viewModel.currentQuestion {
-                        // For gesture recognition, compare detected label with expected
-                        let expectedLabel = question.content.prompt
-                        viewModel.submitGestureAnswer(detectedLabel: detectedLabel, expectedLabel: expectedLabel)
-                    } else {
-                        // For multiple choice questions
-                        viewModel.verifySelectedAnswer()
-                    }
-                    
-                    isVerified = true
-                }
+                handleAnswerButtonTap()
             }
         }
         .applyBackground()
@@ -143,32 +112,59 @@ public struct SQGamesView: View {
             }
         }
     }
-    
-    private func canProceed() -> Bool {
-        if viewModel.getQuestionType() == .performGesture {
-            return gestureLabel != nil
-        } else {
-            return viewModel.selectedAnswerIndex != nil
-        }
+          
+    private func resetQuestionState() {
+        cameraImage = nil
+        gestureLabel = nil
+        isVerified = false
+        viewModel.selectedAnswerIndex = nil
+        viewModel.isAnswerCorrect = nil
     }
     
-    private func determineButtonStyle() -> SQAnswerButtonStyle {
-        // If answer is verified, show correct/incorrect style
-        if isVerified, let isCorrect = viewModel.isAnswerCorrect {
-            return isCorrect ? .correct : .incorrect
+    private func handleAnswerButtonTap() {
+            if !canProceed() {
+                return
+            }
+            
+            if isVerified {
+                if viewModel.isLastQuestion() {
+                    coordinator.push(.finish)
+                } else {
+                    viewModel.moveToNextQuestion()
+                    resetQuestionState()
+                }
+            } else {
+                verifyCurrentAnswer()
+                isVerified = true
+            }
         }
         
-        // For performance gesture, enable if we have a label
-        if viewModel.getQuestionType() == .performGesture && gestureLabel != nil {
-            return .default
+        private func verifyCurrentAnswer() {
+            if viewModel.getQuestionType() == .performGesture, let detectedLabel = gestureLabel {
+                let expectedLabel = viewModel.currentQuestion?.content.prompt ?? ""
+                viewModel.verifyAnswer(detectedGesture: detectedLabel, expectedLabel: expectedLabel)
+            } else {
+                viewModel.verifyAnswer()
+            }
         }
         
-        // For multiple choice, enable if answer selected
-        if viewModel.selectedAnswerIndex != nil {
-            return .default
+        private func canProceed() -> Bool {
+            if viewModel.getQuestionType() == .performGesture {
+                return gestureLabel != nil
+            } else {
+                return viewModel.selectedAnswerIndex != nil
+            }
         }
         
-        // Otherwise disabled
-        return .disabled
+        private func determineButtonStyle() -> SQAnswerButtonStyle {
+            if isVerified, let isCorrect = viewModel.isAnswerCorrect {
+                return isCorrect ? .correct : .incorrect
+            }
+            
+            if viewModel.selectedAnswerIndex != nil {
+                return .default
+            }
+            
+            return .disabled
+        }
     }
-}
