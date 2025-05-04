@@ -10,6 +10,7 @@ import Combine
 import SignQuestModels
 import UIKit
 
+@MainActor
 class SQGamesViewModel: ObservableObject {
     // MARK: - Published properties
     @Published var currentLevel: SQLevel?
@@ -26,6 +27,7 @@ class SQGamesViewModel: ObservableObject {
     // User information
     private var userId: String
     private var levelId: String
+    private let networkService: SQPlayNetworkService = SQPlayNetworkService()
     
     // MARK: - Initialization
     init(userId: String, levelId: String) {
@@ -34,10 +36,15 @@ class SQGamesViewModel: ObservableObject {
         
         // Create a new game session
         createGameSession()
-        
-        // Load level data - In a real app, this would fetch from a repository
-        loadLevelData()
+        loadData()
     }
+    
+    func loadData() {
+        Task { @MainActor in
+            await loadLevelData()
+        }
+    }
+    
     
     // MARK: - Game Session Management
     private func createGameSession() {
@@ -47,27 +54,17 @@ class SQGamesViewModel: ObservableObject {
         )
     }
     
-    private func loadLevelData() {
-        // In a real app, this would fetch from a repository
-        // For now, we'll create a sample level
-        let sampleQuestions = createSampleQuestions()
-        
-        currentLevel = SQLevel(
-            id: levelId,
-            sectionId: "sample-section-id",
-            number: 1,
-            questions: sampleQuestions,
-            minScore: 70,
-            status: .available
-        )
-        
-        // Set the first question
+    @MainActor
+    private func loadLevelData() async {
+        currentLevel = await fetchLevel(levelId: levelId)
+
         if let firstQuestion = currentLevel?.questions.first {
             currentQuestion = firstQuestion
             updateProgress()
         }
     }
-    
+
+
     // MARK: - Question Navigation
     func moveToNextQuestion() {
         guard let level = currentLevel, !level.questions.isEmpty else { return }
@@ -188,70 +185,11 @@ class SQGamesViewModel: ObservableObject {
         guard let level = currentLevel else { return true }
         return currentQuestionIndex >= level.questions.count - 1
     }
-    
-    // MARK: - Sample Data (for demonstration)
-    private func createSampleQuestions() -> [SQQuestion] {
-        return [
-            addAlphabetQuestion(prompt: "hand.raised", correctIndex: 0),
-            addGestureQuestion(prompt: "A", correctIndex: 1),
-            addPerformQuestion(prompt: "A", alphabet: "A"),
-            addGestureQuestion(prompt: "B", correctIndex: 0),
-            addPerformQuestion(prompt: "C", alphabet: "C"),
-            addGestureQuestion(prompt: "C", correctIndex: 1),
-            addPerformQuestion(prompt: "Y", alphabet: "Y"),
-        ]
-    }
 }
 
 extension SQGamesViewModel {
-    func addAlphabetQuestion(prompt: String, correctIndex: Int) -> SQQuestion{
-        return SQQuestion(
-            id: UUID().uuidString,
-            type: .selectAlphabet,
-            content: SQQuestionContent(
-                prompt: prompt,
-                isPromptImage: true,
-                answers: [
-                    SQAnswer(value: "A", isImage: false),
-                    SQAnswer(value: "B", isImage: false),
-                    SQAnswer(value: "C", isImage: false),
-                    SQAnswer(value: "D", isImage: false)
-                ]
-            ),
-            correctAnswerIndex: correctIndex
-        )
-    }
-    
-    func addGestureQuestion(prompt: String, correctIndex: Int) -> SQQuestion{
-        return SQQuestion(
-            id: UUID().uuidString,
-            type: .selectGesture,
-            content: SQQuestionContent(
-                prompt: prompt,
-                isPromptImage: false,
-                answers: [
-                    SQAnswer(value: "hand.raised", isImage: true),
-                    SQAnswer(value: "hand.point.left", isImage: true),
-                    SQAnswer(value: "hand.draw", isImage: true),
-                    SQAnswer(value: "hand.wave", isImage: true)
-                ]
-            ),
-            correctAnswerIndex: correctIndex
-        )
-    }
-    
-    func addPerformQuestion(prompt: String, alphabet: String) -> SQQuestion{
-        return SQQuestion(
-            id: UUID().uuidString,
-            type: .performGesture,
-            content: SQQuestionContent(
-                prompt: prompt,
-                isPromptImage: false,
-                answers: [
-                    SQAnswer(value: alphabet, isImage: false)
-                ]
-            ),
-            correctAnswerIndex: 0
-        )
+    @MainActor
+    func fetchLevel(levelId: String) async -> SQLevel {
+        return await networkService.fetchLevel(levelId: levelId)
     }
 }
