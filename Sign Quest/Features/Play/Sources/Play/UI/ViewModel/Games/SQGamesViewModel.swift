@@ -34,7 +34,6 @@ class SQGamesViewModel: ObservableObject {
         self.userId = userId
         self.levelId = levelId
         
-        // Create a new game session
         createGameSession()
         loadData()
     }
@@ -76,68 +75,49 @@ class SQGamesViewModel: ObservableObject {
             isAnswerCorrect = nil
             updateProgress()
         } else {
-            // Game finished
             finishGame()
         }
     }
     
     // MARK: - Answer Handling
-    // Single method for verifying any type of answer
     func verifyAnswer(detectedGesture: String? = nil, expectedLabel: String? = nil) {
         guard let question = currentQuestion else { return }
-        
-        // Determine if the answer is correct based on question type
         let isCorrect: Bool
         
         switch question.type {
         case .performGesture:
-            // For gesture questions, verify the detected gesture
             guard let detected = detectedGesture, let expected = expectedLabel else {
-                print("Missing detected or expected label for gesture verification")
                 return
             }
             isCorrect = detected.lowercased() == expected.lowercased()
             print("Gesture detection: \(detected) vs expected: \(expected) - \(isCorrect ? "correct" : "incorrect")")
             
         case .selectAlphabet, .selectGesture:
-            // For choice questions, verify selected index matches correct index
             guard let selectedIndex = selectedAnswerIndex else {
-                print("No answer selected for verification")
                 return
             }
             isCorrect = (selectedIndex == question.correctAnswerIndex)
-            print("Selected answer \(selectedIndex) for question \(question.id), correct: \(isCorrect)")
         }
         
-        // Update the answer state
         isAnswerCorrect = isCorrect
         
-        // Update session score
         updateSessionScore(questionId: question.id, isCorrect: isCorrect)
     }
 
-    // Helper to update the session score
     private func updateSessionScore(questionId: String, isCorrect: Bool) {
         guard var session = gameSession else { return }
         
-        // Record the answer
         session.answeredQuestions[questionId] = isCorrect
         
-        // Update score if correct
         if isCorrect {
             session.score += 25
-            print("Correct answer! +25 points")
         } else {
-            print("Incorrect answer, no points added")
         }
         
-        // Update session and score
         gameSession = session
         score = session.score
         
-        // Update shared score
         SQPlayViewModel.shared.updateScore(session.score)
-        print("Updated score to \(session.score)")
     }
     
     // MARK: - Game Progress
@@ -149,7 +129,6 @@ class SQGamesViewModel: ObservableObject {
     private func finishGame() {
         guard let session = gameSession, let level = currentLevel else { return }
         
-        // Update level status based on score
         var updatedLevel = level
         let isCompleted = session.score >= level.minScore
         if isCompleted {
@@ -157,18 +136,12 @@ class SQGamesViewModel: ObservableObject {
             updatedLevel.bestScore = max(session.score, level.bestScore ?? 0)
         }
         
-        // Save session results and update shared view model
         saveGameResults(session: session, level: updatedLevel)
         
-        // Update shared view model with final results
         SQPlayViewModel.shared.updateWithGameResults(
             session: session,
             isCompleted: isCompleted
         )
-        
-        // Debug print the final results
-        print("Final game results - Score: \(session.score), Min required: \(level.minScore), Completed: \(isCompleted)")
-        print("Answered questions: \(session.answeredQuestions)")
     }
     
     private func saveGameResults(session: SQGameSession, level: SQLevel) {
