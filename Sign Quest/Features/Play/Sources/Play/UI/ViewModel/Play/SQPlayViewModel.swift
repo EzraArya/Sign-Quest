@@ -14,7 +14,6 @@ class SQPlayViewModel: ObservableObject, @unchecked Sendable {
     @Published var finalScore: Int = 0
     @Published var isLevelCompleted: Bool = false
     
-    // This will be used to share data between different views
     static let shared = SQPlayViewModel()
     
     private init() {}
@@ -23,15 +22,10 @@ class SQPlayViewModel: ObservableObject, @unchecked Sendable {
         self.gameSession = session
         self.finalScore = session.score
         self.isLevelCompleted = isCompleted
-        
-        // Print debug info
-        print("SQPlayViewModel: Final score updated to \(finalScore), isCompleted: \(isCompleted)")
     }
     
-    // Add a method to update the score during gameplay
     func updateScore(_ newScore: Int) {
         self.finalScore = newScore
-        print("SQPlayViewModel: Score updated to \(newScore)")
     }
     
     func reset() {
