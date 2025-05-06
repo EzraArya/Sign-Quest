@@ -8,17 +8,17 @@
 import SignQuestModels
 
 protocol SQProfileNetworkServiceProtocol {
-    func fetchProfile(userId: String) async throws -> SQUser
-    func updateProfile(userId: String, profile: SQUser) async throws -> SQUser    
+    func fetchProfile(userId: String) async -> SQUser
+    func updateProfile(userId: String, profile: SQUser) async
 }
 
 struct SQProfileNetworkService: SQProfileNetworkServiceProtocol {
-    func fetchProfile(userId: String) async throws -> SQUser {
+    func fetchProfile(userId: String) async -> SQUser {
         return addMockUser()
     }
     
-    func updateProfile(userId: String, profile: SQUser) async throws -> SQUser {
-        return addMockUser()
+    func updateProfile(userId: String, profile: SQUser) async {
+        // MARK: TODO: Implement network call to update profile
     }
 }
 
