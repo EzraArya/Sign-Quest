@@ -61,25 +61,41 @@ struct SQProfileOverview {
     var value: String
 }
 
-
-
+@MainActor
 class SQProfileViewModel: ObservableObject {
     private var coordinator: SQProfileCoordinator?
     @Published public var showDeleteAlert: Bool = false
     @Published public var overviewItems: [SQProfileOverview] = []
     public var user: SQUser?
     
+    private let networkService: SQProfileNetworkService = SQProfileNetworkService()
+    
     init() {
-        setupOverviewItems()
-        fetchUserProfile()
+        loadUserProfile()
+    }
+    
+    @MainActor
+    private func loadUserProfile() {
+        Task { @MainActor in
+            await fetchUserProfile()
+            setupOverviewItems()
+        }
     }
         
     private func setupOverviewItems() {
+        let signLearnedValue: String = {
+            if let currentLevelString = self.user?.currentLevel,
+               let currentLevel = Int(currentLevelString) {
+                return String(currentLevel * 5)
+            }
+            return "0"
+        }()
+        
         overviewItems = [
-            SQProfileOverview(type: .totalScore, value: "50,000"),
-            SQProfileOverview(type: .signLearned, value: "10"),
+            SQProfileOverview(type: .totalScore, value: String(self.user?.totalScore ?? 0)),
+            SQProfileOverview(type: .signLearned, value: signLearnedValue),
             SQProfileOverview(type: .dayStreak, value: "5"),
-            SQProfileOverview(type: .levelCompleted, value: "2")
+            SQProfileOverview(type: .levelCompleted, value: "\(self.user?.currentLevel ?? "0")")
         ]
     }
     func setCoordinator(_ coordinator: SQProfileCoordinator) {
@@ -120,8 +136,7 @@ extension SQProfileViewModel {
         }
     }
     
-    func fetchUserProfile() {
-        // TODO: Replace hardcoded placeholder data with real user data fetched from an API or a proper data source.
-        self.user = SQUser(firstName: "John", lastName: "Doe", email: "johndoe@gmail.com", age: 18, password: "pass")
+    func fetchUserProfile() async {
+        self.user = await networkService.fetchProfile(userId: "1")
     }
 }
