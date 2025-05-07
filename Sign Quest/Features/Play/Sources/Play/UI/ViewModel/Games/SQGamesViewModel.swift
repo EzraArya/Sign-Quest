@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SignQuestModels
 import UIKit
+import SignQuestUI
 
 @MainActor
 class SQGamesViewModel: ObservableObject {
@@ -23,11 +24,14 @@ class SQGamesViewModel: ObservableObject {
     @Published var score: Int = 0
     @Published var isProcessingGesture: Bool = false
     @Published var gestureLabel: String?
+    @Published var cameraImage: UIImage? = nil
+    @Published var isVerified: Bool = false
     
     // User information
     private var userId: String
     private var levelId: String
     private let networkService: SQPlayNetworkService = SQPlayNetworkService()
+    private var coordinator: SQPlayCoordinator?
     
     // MARK: - Initialization
     init(userId: String, levelId: String) {
@@ -44,6 +48,10 @@ class SQGamesViewModel: ObservableObject {
         }
     }
     
+    func setCoordinator(_ coordinator: SQPlayCoordinator) {
+        self.coordinator = coordinator
+    }
+
     
     // MARK: - Game Session Management
     private func createGameSession() {
@@ -164,5 +172,62 @@ extension SQGamesViewModel {
     @MainActor
     func fetchLevel(levelId: String) async -> SQLevel {
         return await networkService.fetchLevel(levelId: levelId)
+    }
+}
+
+extension SQGamesViewModel {
+    private func resetQuestionState() {
+        self.cameraImage = nil
+        self.gestureLabel = nil
+        self.isVerified = false
+        self.selectedAnswerIndex = nil
+        self.isAnswerCorrect = nil
+    }
+    
+    func handleAnswerButtonTap() {
+        if !canProceed() {
+            return
+        }
+        
+        if isVerified {
+            if isLastQuestion() {
+                coordinator?.push(.finish)
+            } else {
+                moveToNextQuestion()
+                resetQuestionState()
+            }
+        } else {
+            verifyCurrentAnswer()
+            isVerified = true
+        }
+    }
+    
+    private func verifyCurrentAnswer() {
+        if getQuestionType() == .performGesture, let detectedLabel = gestureLabel {
+            let expectedLabel = self.currentQuestion?.content.prompt ?? ""
+            verifyAnswer(detectedGesture: detectedLabel, expectedLabel: expectedLabel)
+        } else {
+            verifyAnswer()
+        }
+    }
+    
+    private func canProceed() -> Bool {
+        if getQuestionType() == .performGesture {
+            return gestureLabel != nil
+        } else {
+            return selectedAnswerIndex != nil
+        }
+    }
+    
+    func determineButtonStyle() -> SQAnswerButtonStyle {
+        if isVerified, let isCorrect = isAnswerCorrect {
+            return isCorrect ? .correct : .incorrect
+        }
+        
+        if selectedAnswerIndex != nil {
+            return .default
+        }
+        
+        return .disabled
     }
 }
