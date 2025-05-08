@@ -74,7 +74,7 @@ struct SectionView: View {
             .padding(.horizontal, 12)
 
             Divider()
-                .padding(.horizontal, 12)
+                .padding(12)
 
             Spacer()
         }
