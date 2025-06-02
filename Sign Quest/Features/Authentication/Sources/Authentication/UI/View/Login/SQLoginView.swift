@@ -15,6 +15,7 @@ public struct SQLoginView: View {
     @FocusState private var isEmailActive: Bool
     @FocusState private var isPasswordActive: Bool
     @Environment(\.dismiss) private var dismiss
+    @State private var isEmailValid: Bool = true
 
     public init() {}
     
@@ -28,9 +29,6 @@ public struct SQLoginView: View {
                     style: viewModel.emailStyle
                 )
                 .focused($isEmailActive)
-                .onChange(of: isEmailActive) { isActive in
-                    viewModel.validateInput(isEmailActive: isActive, isPasswordActive: isPasswordActive)
-                }
 
                 SQTextField(
                     title: "Password",
@@ -40,14 +38,13 @@ public struct SQLoginView: View {
                     isSecure: true
                 )
                 .focused($isPasswordActive)
-                .onChange(of: isPasswordActive) { isActive in
-                    viewModel.validateInput(isEmailActive: isEmailActive, isPasswordActive: isActive)
-                }
             }
             Spacer()
             SQButton(text: "Sign In", font: .bold, style: .default, size: 16) {
+                isEmailValid = viewModel.validateEmail()
+                
                 viewModel.validateInput(isEmailActive: isEmailActive, isPasswordActive: isPasswordActive)
-                if !viewModel.hasError {
+                if !viewModel.hasError && isEmailValid {
                     viewModel.login()
                 }
             }
