@@ -6,32 +6,23 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
-public struct SQUser: Hashable, Identifiable, Sendable {
-    public let id: String
+public struct SQUser: Codable, Hashable, Identifiable {
+    @DocumentID
+    public var id: String?
+    
     public var firstName: String
     public var lastName: String
     public var email: String
     public var age: Int
-    public var password: String
-    public var createdAt: Date
+    
+    @ServerTimestamp
+    public var createdAt: Date?
+    
     public var image: String?
-    
     public var currentLevel: String?
-    public var totalScore: Int = 0
-    
-    public init(id: String = UUID().uuidString, firstName: String, lastName: String, email: String, age: Int, password: String, createdAt: Date = Date(), currentLevel: String? = nil, totalScore: Int = 0, image: String? = nil) {
-        self.id = id
-        self.firstName = firstName
-        self.lastName = lastName
-        self.email = email
-        self.age = age
-        self.password = password
-        self.createdAt = createdAt
-        self.currentLevel = currentLevel
-        self.totalScore = totalScore
-        self.image = image
-    }
+    public var totalScore: Int
     
     public var fullName: String {
         return "\(firstName) \(lastName)"
