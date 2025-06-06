@@ -14,11 +14,17 @@ let package = Package(
             name: "SignQuestModels",
             targets: ["SignQuestModels"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.14.0")
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "SignQuestModels"),
+            name: "SignQuestModels",
+            dependencies: [
+                .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
+            ]),
         .testTarget(
             name: "SignQuestModelsTests",
             dependencies: ["SignQuestModels"]
