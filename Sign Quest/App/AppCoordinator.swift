@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import UIKit
+import Combine
 import SignQuestInterfaces
 import Onboarding
 import Authentication
@@ -16,6 +16,7 @@ import Leaderboard
 import Profile
 import Play
 import SignQuestCore
+import FirebaseAuth
 
 public enum AppState {
     case onboarding
@@ -27,25 +28,45 @@ public enum AppState {
 
 @MainActor
 public class AppCoordinator: AppCoordinatorProtocol {
-    // Initialize the appState based on the user's progress:
-    // - If onboarding is completed, check if the user is logged in:
-    //   - If logged in, set the state to .mainFlow.
-    //   - Otherwise, set the state to .login.
-    // - If onboarding is not completed, set the state to .onboarding.
-    @Published public var appState: AppState = {
-        let defaults = UserDefaultsManager.shared
-        if defaults.isOnboardingCompleted {
-            if defaults.isLoggedIn {
-                return .mainFlow
-            } else {
-                return .login
-            }
-        } else {
-            return .onboarding
-        }
-    }()
+    @Published public var appState: AppState
     
-    public init() {}
+    private var userManager: UserManager
+    private var cancellables = Set<AnyCancellable>()
+
+    public init(userManager: UserManager) {
+        self.userManager = userManager
+        if !UserDefaultsManager.shared.isOnboardingCompleted {
+            self.appState = .onboarding
+        } else {
+            self.appState = userManager.authUser != nil ? .mainFlow : .login
+        }
+        setupAuthenticationListener()
+    }
+    
+    private func setupAuthenticationListener() {
+        userManager.$authUser
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] user in
+                guard let self = self else { return }
+                
+                // Only react to auth changes if onboarding is complete.
+                guard UserDefaultsManager.shared.isOnboardingCompleted else { return }
+
+                if self.appState == .play {
+                    // Do not change state if the user is in the middle of a game
+                    return
+                }
+
+                if user != nil {
+                    // A user is now logged in, switch to the main app flow.
+                    self.appState = .mainFlow
+                } else {
+                    // The user logged out, switch to the login screen.
+                    self.appState = .login
+                }
+            }
+            .store(in: &cancellables)
+    }
         
     public func startOnboarding() {
         appState = .onboarding
