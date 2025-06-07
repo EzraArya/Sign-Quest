@@ -12,7 +12,6 @@ public final class UserDefaultsManager: @unchecked Sendable {
     
     private let defaults = UserDefaults.standard
     private let onboardingKey = "SQ_isOnboardingCompleted"
-    private let loginKey = "SQ_isLoggedIn"
     
     public var isOnboardingCompleted: Bool {
         get { defaults.bool(forKey: onboardingKey) }
@@ -21,16 +20,7 @@ public final class UserDefaultsManager: @unchecked Sendable {
         }
     }
     
-    public var isLoggedIn: Bool {
-        get { defaults.bool(forKey: loginKey) }
-        set {
-            defaults.set(newValue, forKey: loginKey)
-            defaults.synchronize()
-        }
-    }
-    
     public func resetAll() {
         isOnboardingCompleted = false
-        isLoggedIn = false
     }
 }

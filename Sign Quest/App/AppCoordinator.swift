@@ -24,6 +24,7 @@ public enum AppState {
     case login
     case register
     case play
+    case greet
 }
 
 @MainActor
@@ -49,19 +50,19 @@ public class AppCoordinator: AppCoordinatorProtocol {
             .sink { [weak self] user in
                 guard let self = self else { return }
                 
-                // Only react to auth changes if onboarding is complete.
                 guard UserDefaultsManager.shared.isOnboardingCompleted else { return }
 
                 if self.appState == .play {
-                    // Do not change state if the user is in the middle of a game
                     return
                 }
 
                 if user != nil {
-                    // A user is now logged in, switch to the main app flow.
-                    self.appState = .mainFlow
+                    if self.appState == .login || self.appState == .register {
+                        self.appState = .greet //
+                    } else {
+                        self.appState = .mainFlow
+                    }
                 } else {
-                    // The user logged out, switch to the login screen.
                     self.appState = .login
                 }
             }
@@ -109,6 +110,10 @@ public class AppCoordinator: AppCoordinatorProtocol {
             )
         case .play:
             SQPlayCoordinatorView(appCoordinator: self)
+            
+        case .greet:
+            SQAuthenticationCoordinatorView(appCoordinator: self, initialScreen: .login)
+
         }
     }
 }
