@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-public struct SQUser: Codable, Hashable, Identifiable {
+public struct SQUser: Codable, Hashable, Identifiable, @unchecked Sendable {
     @DocumentID
     public var id: String?
     
@@ -24,6 +24,19 @@ public struct SQUser: Codable, Hashable, Identifiable {
     public var currentLevel: String?
     public var totalScore: Int
     
+    public init(firstName: String, lastName: String, email: String, age: Int) {
+        self.firstName = firstName
+        self.lastName = lastName
+        self.email = email
+        self.age = age
+        
+        self.id = nil
+        self.createdAt = nil
+        self.image = nil
+        self.totalScore = 0
+        self.currentLevel = nil
+    }
+
     public var fullName: String {
         return "\(firstName) \(lastName)"
     }

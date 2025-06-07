@@ -14,7 +14,7 @@ public enum SQLevelStatus: String, Codable, Sendable {
     case completed
 }
 
-public struct SQLevel: Codable, Identifiable, Hashable {
+public struct SQLevel: Codable, Identifiable, Hashable, @unchecked Sendable {
     @DocumentID public var id: String?
     public let sectionId: String
     public let number: Int

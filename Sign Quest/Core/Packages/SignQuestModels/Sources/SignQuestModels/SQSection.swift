@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-public struct SQSection: Codable, Identifiable, Hashable {
+public struct SQSection: Codable, Identifiable, Hashable, @unchecked Sendable {
     @DocumentID
     public var id: String?
     

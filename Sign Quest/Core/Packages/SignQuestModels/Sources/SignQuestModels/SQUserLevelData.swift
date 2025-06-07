@@ -12,7 +12,7 @@ public enum SQUserLevelDataStatus: String, Codable {
     case locked = "locked"
 }
 
-public struct SQUserLevelData: Codable, Identifiable {
+public struct SQUserLevelData: Codable, Identifiable, @unchecked Sendable {
     @DocumentID
     public var id: String?
     
