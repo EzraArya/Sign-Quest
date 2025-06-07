@@ -58,6 +58,21 @@ public class UserManager: ObservableObject {
         try? Auth.auth().signOut()
     }
     
+    public func deleteAccount() {
+        guard let user = authUser else { return }
+        
+        let db = Firestore.firestore()
+        db.collection("users").document(user.uid).delete { [weak self] error in
+            if let error = error {
+                print("Error deleting user document: \(error)")
+            } else {
+                user.delete()
+                self?.authUser = nil
+                self?.firestoreUser = nil
+            }
+        }
+    }
+    
     deinit {
         if let authStateHandler = authStateHandler {
             Auth.auth().removeStateDidChangeListener(authStateHandler)
