@@ -22,6 +22,8 @@ public struct SQChangePasswordView: View {
 
             Spacer()
             
+            SQText(text: viewModel.errorMessage, font: .medium, color: .error, size: 12)
+                .padding(.bottom, 12)
             SQButton(text: "Save", font: .bold, style: .default, size: 16) {
                 viewModel.changePassword()
             }

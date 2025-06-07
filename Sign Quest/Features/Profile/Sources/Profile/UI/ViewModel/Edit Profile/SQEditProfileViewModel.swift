@@ -5,39 +5,63 @@
 //  Created by Ezra Arya Wijaya on 01/05/25.
 //
 
-import SignQuestCore
+import SwiftUI
 import Combine
+import SignQuestCore
 import SignQuestModels
 
+@MainActor
 class SQEditProfileViewModel: ObservableObject {
-    @Published public var firstName: String = ""
-    @Published public var lastName: String = ""
-    @Published public var email: String = ""
-    @Published public var password: String = ""
+    @Published var firstName: String = ""
+    @Published var lastName: String = ""
+    @Published var email: String = ""
+    
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+    
+    private var userManager: UserManager?
     private var coordinator: SQProfileCoordinator?
-    private let userId: String = "0" // Replace with actual user ID
-    private let networkService: SQProfileNetworkService = SQProfileNetworkService()
-
-    func setCoordinator(_ coordinator: SQProfileCoordinator) {
-        self.coordinator = coordinator
+    private let networkService: SQProfileNetworkServiceProtocol
+    
+    init(networkService: SQProfileNetworkServiceProtocol = SQProfileNetworkService()) {
+        self.networkService = networkService
     }
     
-    @MainActor
-    func updateProfile() {
-        // Implement the logic to update the profile here
-        let updatedUser = SQUser(
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            age: 12,
-            password: ""
-        )
+    func link(userManager: UserManager, coordinator: SQProfileCoordinator) {
+        self.userManager = userManager
+        self.coordinator = coordinator
         
-        Task {
-            await updateUserProfile(userId: userId, profile: updatedUser)
+        self.firstName = userManager.firestoreUser?.firstName ?? ""
+        self.lastName = userManager.firestoreUser?.lastName ?? ""
+        self.email = userManager.firestoreUser?.email ?? ""
+    }
+
+    func updateProfile() async {
+        isLoading = true
+        errorMessage = nil
+        
+        guard var updatedUser = userManager?.firestoreUser else {
+            errorMessage = "Could not find user data to update."
+            isLoading = false
+            return
         }
         
-        coordinator?.pop()
+        updatedUser.firstName = self.firstName
+        updatedUser.lastName = self.lastName
+        
+        do {
+            guard let userId = updatedUser.id else { return }
+            try await networkService.updateProfile(userId: userId, profile: updatedUser)
+            
+            print("✅ Profile updated successfully.")
+            isLoading = false
+            coordinator?.pop()
+            
+        } catch {
+            print("❌ Error updating profile: \(error.localizedDescription)")
+            errorMessage = "Failed to update profile. Please try again."
+            isLoading = false
+        }
     }
     
     func navigateToChangePassword() {
@@ -46,14 +70,5 @@ class SQEditProfileViewModel: ObservableObject {
     
     func navigateBack() {
         coordinator?.pop()
-    }
-}
-
-extension SQEditProfileViewModel {
-    func updateUserProfile(userId: String, profile: SQUser) async {
-        await networkService.updateProfile(
-            userId: userId,
-            profile: profile
-        )
     }
 }

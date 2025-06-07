@@ -9,6 +9,7 @@ import SwiftUI
 import SignQuestUI
 import SignQuestCore
 import SignQuestModels
+import Combine
 
 enum SQProfileOverviewType {
     case totalScore
@@ -63,80 +64,100 @@ struct SQProfileOverview {
 
 @MainActor
 class SQProfileViewModel: ObservableObject {
-    private var coordinator: SQProfileCoordinator?
     @Published public var showDeleteAlert: Bool = false
     @Published public var overviewItems: [SQProfileOverview] = []
-    public var user: SQUser?
+    @Published public var isLoading: Bool = true
     
-    private let networkService: SQProfileNetworkService = SQProfileNetworkService()
+    private var userManager: UserManager?
+    private var coordinator: SQProfileCoordinator?
+    private var cancellables = Set<AnyCancellable>()
     
     init() {
-        loadUserProfile()
+        setupPlaceholderItems()
     }
     
-    @MainActor
-    private func loadUserProfile() {
-        Task { @MainActor in
-            await fetchUserProfile()
-            setupOverviewItems()
-        }
+    func link(userManager: UserManager, coordinator: SQProfileCoordinator) {
+        self.userManager = userManager
+        self.coordinator = coordinator
+        setupUserSubscription()
     }
+    
+    private func setupPlaceholderItems() {
+        overviewItems = [
+            SQProfileOverview(type: .totalScore, value: "0000"),
+            SQProfileOverview(type: .signLearned, value: "000"),
+            SQProfileOverview(type: .dayStreak, value: "00"),
+            SQProfileOverview(type: .levelCompleted, value: "00")
+        ]
+    }
+    
+    private func setupUserSubscription() {
+        guard let userManager = userManager else { return }
         
-    private func setupOverviewItems() {
+        Publishers.CombineLatest(userManager.$authUser, userManager.$firestoreUser)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] authUser, firestoreUser in
+                guard let self = self else { return }
+                
+                self.isLoading = authUser != nil && firestoreUser == nil
+                
+                if let user = firestoreUser {
+                    self.setupOverviewItems(for: user)
+                } else {
+                    self.setupPlaceholderItems()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func setupOverviewItems(for user: SQUser?) {
         let signLearnedValue: String = {
-            if let currentLevelString = self.user?.currentLevel,
-               let currentLevel = Int(currentLevelString) {
+            if let currentLevelString = user?.currentLevel, let currentLevel = Int(currentLevelString) {
                 return String(currentLevel * 5)
             }
             return "0"
         }()
         
         overviewItems = [
-            SQProfileOverview(type: .totalScore, value: String(self.user?.totalScore ?? 0)),
+            SQProfileOverview(type: .totalScore, value: String(user?.totalScore ?? 0)),
             SQProfileOverview(type: .signLearned, value: signLearnedValue),
             SQProfileOverview(type: .dayStreak, value: "5"),
-            SQProfileOverview(type: .levelCompleted, value: "\(self.user?.currentLevel ?? "0")")
+            SQProfileOverview(type: .levelCompleted, value: "\(user?.currentLevel ?? "0")")
         ]
     }
-    func setCoordinator(_ coordinator: SQProfileCoordinator) {
-        self.coordinator = coordinator
+    
+    func logout() {
+        userManager?.signOut()
     }
     
     func navigateToEditProfile() {
         coordinator?.push(.editProfile)
     }
     
-    @MainActor
-    func logout() {
-        UserDefaultsManager.shared.resetAll()
-        coordinator?.navigateToWelcome()
-    }
-    
-    @MainActor
     func deleteAccount() {
-        UserDefaultsManager.shared.resetAll()
+        showDeleteAlert = false
         coordinator?.navigateToWelcome()
     }
 }
 
 extension SQProfileViewModel {
     var userName: String {
-        return user?.fullName ?? "User Name"
+        return userManager?.firestoreUser?.fullName ?? "User Name"
     }
     
     var userEmail: String {
-        return user?.email ?? "email@gmail.com"
+        return userManager?.firestoreUser?.email ?? "email@gmail.com"
     }
     
     var joinDate: String {
-        if let date = user?.createdAt {
+        if let date = userManager?.firestoreUser?.createdAt {
             return date.formatted(date: .long, time: .omitted)
         } else {
-            return Date().formatted(date: .long, time: .omitted)
+            return "Joined Date"
         }
     }
     
-    func fetchUserProfile() async {
-        self.user = await networkService.fetchProfile(userId: "1")
+    var profilePicture: String? {
+        return userManager?.firestoreUser?.image
     }
 }
