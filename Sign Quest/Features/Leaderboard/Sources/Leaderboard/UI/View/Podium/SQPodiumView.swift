@@ -46,20 +46,36 @@ public struct SQPodiumView: View {
     
     @ViewBuilder
     private func PlayerAvatarView(player: SQUser, borderColor: Color) -> some View {
-        if let uiImage = UIImage(named: "ayame", in: .module, compatibleWith: nil) {
-            Image(uiImage: uiImage)
+        if let imageUrlString = player.image, let url = URL(string: imageUrlString) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .failure:
+                    Image(systemName: "person.crop.circle.fill.badge.xmark")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(.gray)
+
+                @unknown default:
+                    EmptyView()
+                }
+            }
+            .frame(width: 60, height: 60)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(borderColor, lineWidth: 2)
+            )
+            
+        } else {
+            Image(uiImage: UIImage(named: "ayame", in: .module, compatibleWith: nil)!)
                 .resizable()
                 .scaledToFill()
-                .frame(width: 60, height: 60)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(borderColor, lineWidth: 2)
-                )
-        } else {
-            Image(systemName: player.image ?? "person")
-                .resizable()
-                .scaledToFit()
                 .frame(width: 60, height: 60)
                 .clipShape(Circle())
                 .overlay(
