@@ -21,36 +21,57 @@ class SQRegisterViewModel: ObservableObject {
     @Published public var emailPageValid = false
     @Published public var passwordPageValid = false
     @Published public var progressAmount = 25.0
+    
+    private var networkService: SQAuthenticationNetworkServiceProtocol
     private var coordinator: SQAuthenticationCoordinator?
-    private var user: SQUser?
+    private var user: SQUser = SQUser(firstName: "", lastName: "", email: "", age: 0)
+    
+    init(networkService: SQAuthenticationNetworkServiceProtocol = SQAuthenticationNetworkService()) {
+        self.networkService = networkService
+    }
     
     func setCoordinator(_ coordinator: SQAuthenticationCoordinator) {
         self.coordinator = coordinator
     }
     
-    func incrementProgress() {
-        self.currentTab += 1
-        self.progressAmount += 25
-    }
-    
-    func decrementProgress() {
-        self.currentTab -= 1
-        self.progressAmount -= 25
-    }
-    
+    @MainActor
     func createAccount() {
         self.user = SQUser(
-            firstName: self.firstName,
-            lastName: self.lastName,
-            email: self.email,
-            age: Int(self.age) ?? 0,
-            password: self.password
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            age: Int(age) ?? 0
         )
-        coordinator?.push(.greet)
+        
+        Task {
+            // This do-catch block is essential for debugging
+            do {
+                try await networkService.register(user: user, password: password)
+                print("✅ Successfully created user and saved to Firestore.")
+                coordinator?.push(.greet)
+            } catch {
+                // THIS WILL PRINT THE EXACT ERROR FROM FIREBASE
+                print("❌ FAILED TO REGISTER: \(error.localizedDescription)")
+                print("---")
+                print("Full error details: \(error)")
+            }
+        }
     }
     
     @MainActor
     func navigateToOnboarding() {
         coordinator?.showOnboarding()
+    }
+}
+
+extension SQRegisterViewModel {
+    func incrementTabProgress() {
+        self.currentTab += 1
+        self.progressAmount += 25
+    }
+    
+    func decrementTabProgress() {
+        self.currentTab -= 1
+        self.progressAmount -= 25
     }
 }

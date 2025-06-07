@@ -16,6 +16,11 @@ public class SQLoginViewModel: ObservableObject {
     @Published var passwordStyle: SQTextFieldStyle = .default
     @Published var hasError: Bool = false
     private var coordinator: SQAuthenticationCoordinator?
+    private var networkService: SQAuthenticationNetworkServiceProtocol
+    
+    init(networkService: SQAuthenticationNetworkServiceProtocol = SQAuthenticationNetworkService()) {
+        self.networkService = networkService
+    }
 
     func setCoordinator(_ coordinator: SQAuthenticationCoordinator) {
         self.coordinator = coordinator
@@ -42,8 +47,12 @@ public class SQLoginViewModel: ObservableObject {
         passwordStyle = SQTextFieldUtil.setTextFieldStyle(isActive: isPasswordActive, hasError: password.isEmpty)
     }
     
+    @MainActor
     func login() {
-        coordinator?.push(.greet)
+        Task {
+            try await networkService.login(email: email, password: password)
+            coordinator?.push(.greet)
+        }
     }
     
     @MainActor
