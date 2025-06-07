@@ -19,12 +19,3 @@ public struct AppCoordinatorView: View {
         .environmentObject(appCoordinator)
     }
 }
-
-
-struct AppCoordinatorView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainActor.assumeIsolated {
-            AppCoordinatorView()
-        }
-    }
-}

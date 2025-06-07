@@ -21,6 +21,21 @@ public class SQLoginViewModel: ObservableObject {
         self.coordinator = coordinator
     }
     
+    func validateEmail() -> Bool {
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard trimmedEmail.contains("@"),
+              let atIndex = trimmedEmail.firstIndex(of: "@"),
+              trimmedEmail.distance(from: atIndex, to: trimmedEmail.endIndex) > 1,
+              !trimmedEmail.contains("..") else {
+            return false
+        }
+        
+        let emailRegex = #"^[A-Z0-9a-z]([A-Z0-9a-z._%+-]{0,30}[A-Z0-9a-z])?@[A-Za-z0-9]([A-Za-z0-9-]{0,30}[A-Za-z0-9])?(\.[A-Za-z]{2,})+$"#
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        return emailPredicate.evaluate(with: trimmedEmail)
+    }
+    
     func validateInput(isEmailActive: Bool, isPasswordActive: Bool) {
         hasError = email.isEmpty || password.isEmpty
         emailStyle = SQTextFieldUtil.setTextFieldStyle(isActive: isEmailActive, hasError: email.isEmpty)
