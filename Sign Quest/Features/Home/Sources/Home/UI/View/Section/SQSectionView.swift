@@ -13,13 +13,13 @@ struct SectionView: View {
     let section: SQSection
     @ObservedObject var viewModel: SQHomeViewModel
     private var sectionLevelBinding: Binding<String?> {
-        Binding<String?>(
+        Binding(
             get: {
                 viewModel.activePopup?.sectionId == section.id ? viewModel.activePopup?.levelId : nil
             },
             set: { newValue in
                 if let levelId = newValue {
-                    viewModel.activePopup = (section.id, levelId)
+                    viewModel.activePopup = ActivePopup(sectionId: section.id ?? "1", levelId: levelId)
                 } else {
                     viewModel.activePopup = nil
                 }
@@ -34,34 +34,21 @@ struct SectionView: View {
                 title: section.title
             )
 
-            HStack {
-                SQText(text: "Progress:", font: .medium, color: .secondary, size: 16)
-                ProgressView(value: section.completionPercentage / 100)
-                    .progressViewStyle(LinearProgressViewStyle())
-                SQText(
-                    text: "\(Int(section.completionPercentage))%",
-                    font: .medium,
-                    color: .primary,
-                    size: 16
-                )
-            }
-            .padding(.top, 8)
-
             VStack(spacing: 30) {
-                ForEach(section.levels) { level in
+                ForEach(viewModel.levels(for: section)) { level in
                     VStack(spacing: 4) {
                         SQLevelButton(
                             level: level.displayName,
-                            style: viewModel.getLevelButtonStyle(for: level),
+                            style: viewModel.getLevelButtonStyle(for: level), // This now works
                             activePopup: sectionLevelBinding,
                             action: viewModel.canNavigate(to: level) ? {
                                 viewModel.navigateToGame(for: level)
                             } : nil
                         )
 
-                        if let bestScore = level.bestScore {
+                        if let bestScore = viewModel.bestScore(for: level) {
                             SQText(
-                                text: "Best Score: \(bestScore)/\(level.questions.count * 10)",
+                                text: "Best Score: \(bestScore)/\(level.minScore)",
                                 font: .medium,
                                 color: .secondary,
                                 size: 14
