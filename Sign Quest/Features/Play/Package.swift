@@ -17,7 +17,8 @@ let package = Package(
     dependencies: [
         .package(path: "../SignQuestUI"),
         .package(path: "../SignQuestInterfaces"),
-        .package(url: "https://github.com/ultralytics/yolo-ios-app.git", branch: "main")
+        .package(path: "../SignQuestModels"),
+        .package(url: "https://github.com/ultralytics/yolo-ios-app.git", branch: "main"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -27,7 +28,8 @@ let package = Package(
             dependencies: [
                 "SignQuestUI",
                 "SignQuestInterfaces",
-                .product(name: "YOLO", package: "yolo-ios-app")
+                "SignQuestModels",
+                .product(name: "YOLO", package: "yolo-ios-app"),
             ],
             resources: [
                 .copy("Model/yolo.mlmodel")
