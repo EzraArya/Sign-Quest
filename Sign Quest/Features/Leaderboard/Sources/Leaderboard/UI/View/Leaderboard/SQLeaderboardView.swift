@@ -53,6 +53,7 @@ public struct SQLeaderboardView: View {
             }
             .padding()
         }
+        .redacted(reason: viewModel.isLoading ? .placeholder : [])
         .applyBackground()
         .task { [viewModel] in
             await viewModel.fetchLeaderboardData()

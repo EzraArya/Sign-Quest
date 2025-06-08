@@ -50,13 +50,13 @@ public struct SQPodiumView: View {
             AsyncImage(url: url) { phase in
                 switch phase {
                 case .empty:
-                    ProgressView()
+                    Circle().fill(Color.gray.opacity(0.3))
                 case .success(let image):
                     image
                         .resizable()
                         .scaledToFill()
                 case .failure:
-                    Image(systemName: "person.crop.circle.fill.badge.xmark")
+                    Image(systemName: "person.crop.circle.fill")
                         .resizable()
                         .scaledToFit()
                         .foregroundStyle(.gray)
