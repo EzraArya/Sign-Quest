@@ -9,7 +9,8 @@ import SignQuestCore
 
 @main
 struct Sign_QuestApp: App {
-    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
     @StateObject private var userManager: UserManager
     @StateObject private var appCoordinator: AppCoordinator
 

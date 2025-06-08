@@ -17,6 +17,7 @@ import Profile
 import Play
 import SignQuestCore
 import FirebaseAuth
+import SignQuestUI
 
 public enum AppState {
     case onboarding
@@ -36,41 +37,84 @@ public class AppCoordinator: AppCoordinatorProtocol {
 
     public init(userManager: UserManager) {
         self.userManager = userManager
+        
+        print("🔍 Determining initial app state...")
+        
         if !UserDefaultsManager.shared.isOnboardingCompleted {
+            print("➡️ Onboarding not completed, showing onboarding")
             self.appState = .onboarding
+        } else if let currentUser = Auth.auth().currentUser {
+            print("✅ Found authenticated user: \(currentUser.uid)")
+            print("   Email: \(currentUser.email ?? "No email")")
+            self.appState = .greet
         } else {
-            self.appState = userManager.authUser != nil ? .mainFlow : .login
+            print("❌ No authenticated user found, showing login")
+            self.appState = .login
         }
+        
         setupAuthenticationListener()
+        
+        if let currentUser = Auth.auth().currentUser {
+            validateUserToken(currentUser)
+        }
+    }
+    
+    private func validateUserToken(_ user: User) {
+        user.getIDToken { [weak self] token, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("❌ Token validation failed: \(error)")
+                    print("   Redirecting to login")
+                    self?.appState = .login
+                } else if token == nil {
+                    print("⚠️ No token found, redirecting to login")
+                    self?.appState = .login
+                } else {
+                    print("✅ Token is valid, auto-login successful")
+                }
+            }
+        }
     }
     
     private func setupAuthenticationListener() {
         userManager.$authUser
+            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
                 guard let self = self else { return }
                 
-                guard UserDefaultsManager.shared.isOnboardingCompleted else { return }
-
-                if self.appState == .play {
+                print("🔄 Auth state changed: \(user?.uid ?? "nil")")
+                
+                if self.appState == .onboarding || self.appState == .play {
+                    print("   Ignoring auth change during \(self.appState)")
                     return
                 }
-
+                
                 if user != nil {
                     if self.appState == .login || self.appState == .register {
-                        self.appState = .greet //
-                    } else {
-                        self.appState = .mainFlow
+                        print("   User logged in, transitioning to greet")
+                        self.appState = .greet
                     }
                 } else {
+                    print("   User logged out, transitioning to login")
                     self.appState = .login
                 }
             }
             .store(in: &cancellables)
     }
-        
+
     public func startOnboarding() {
         appState = .onboarding
+    }
+    
+    public func completeOnboarding() {
+        UserDefaultsManager.shared.isOnboardingCompleted = true
+        
+        if Auth.auth().currentUser != nil {
+            appState = .greet
+        } else {
+            appState = .login
+        }
     }
     
     public func startMainFlow() {
@@ -112,7 +156,7 @@ public class AppCoordinator: AppCoordinatorProtocol {
             SQPlayCoordinatorView(appCoordinator: self)
             
         case .greet:
-            SQAuthenticationCoordinatorView(appCoordinator: self, initialScreen: .login)
+            SQAuthenticationCoordinatorView(appCoordinator: self, initialScreen: .greet)
 
         }
     }
