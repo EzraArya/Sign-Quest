@@ -21,7 +21,14 @@ public class UserManager: ObservableObject {
     private var firestoreListener: ListenerRegistration?
     
     public init() {
+        self.authUser = Auth.auth().currentUser
+        print("🏁 UserManager initialized with user: \(self.authUser?.uid ?? "nil")")
+        
         addAuthStateListener()
+        
+        if let currentUser = Auth.auth().currentUser {
+            setupFirestoreListener(for: currentUser.uid)
+        }
     }
     
     private func addAuthStateListener() {
@@ -29,14 +36,25 @@ public class UserManager: ObservableObject {
         
         authStateHandler = Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in
             guard let self = self else { return }
-            self.authUser = user
             
-            if let user = user {
-                self.setupFirestoreListener(for: user.uid)
-            } else {
-                self.firestoreListener?.remove()
-                self.firestoreListener = nil
-                self.firestoreUser = nil
+            Task { @MainActor in
+                print("🔄 Auth state listener triggered:")
+                print("   Previous user: \(self.authUser?.uid ?? "nil")")
+                print("   New user: \(user?.uid ?? "nil")")
+                
+                self.authUser = user
+                
+                if let user = user {
+                    print("✅ User authenticated: \(user.uid)")
+                    print("   Email: \(user.email ?? "No email")")
+                    print("   Email verified: \(user.isEmailVerified)")
+                    self.setupFirestoreListener(for: user.uid)
+                } else {
+                    print("❌ User not authenticated")
+                    self.firestoreListener?.remove()
+                    self.firestoreListener = nil
+                    self.firestoreUser = nil
+                }
             }
         }
     }
@@ -51,7 +69,7 @@ public class UserManager: ObservableObject {
             
             Task { @MainActor in
                 if let error = error {
-                    print("Error listening to user document: \(error)")
+                    print("❌ Error listening to user document: \(error)")
                     self.firestoreUser = nil
                     return
                 }
@@ -59,15 +77,20 @@ public class UserManager: ObservableObject {
                 if let document = document, document.exists {
                     do {
                         self.firestoreUser = try document.data(as: SQUser.self)
+                        print("✅ Firestore user data loaded")
                     } catch {
-                        print("Error decoding user data: \(error)")
+                        print("❌ Error decoding user data: \(error)")
                     }
                 } else {
-                    print("User document does not exist")
+                    print("⚠️ User document does not exist")
                     self.firestoreUser = nil
                 }
             }
         }
+    }
+    
+    public var isAuthenticated: Bool {
+        return authUser != nil
     }
     
     public func signOut() {
@@ -78,7 +101,15 @@ public class UserManager: ObservableObject {
         
         self.firestoreListener?.remove()
         self.firestoreListener = nil
-        try? Auth.auth().signOut()
+        
+        do {
+            try Auth.auth().signOut()
+            print("✅ User signed out successfully")
+        } catch {
+            print("❌ Error signing out: \(error)")
+        }
+        
+        addAuthStateListener()
     }
     
     public func deleteAccount() async {
