@@ -16,6 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.14.0"),
+        .package(url: "https://github.com/cloudinary/cloudinary_ios", from: "5.0.0"),
         .package(path: "../SignQuestModels"),
     ],
     targets: [
@@ -26,6 +27,7 @@ let package = Package(
             dependencies: [
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+                .product(name: "Cloudinary", package: "cloudinary_ios"),
                 "SignQuestModels",
             ],
         ),
