@@ -11,7 +11,9 @@ import SignQuestCore
 
 public struct SQProfileView: View {
     @EnvironmentObject var coordinator: SQProfileCoordinator
-    @StateObject var viewModel: SQProfileViewModel = SQProfileViewModel()
+    @EnvironmentObject var userManager: UserManager
+    
+    @StateObject private var viewModel = SQProfileViewModel()
 
     public init() {}
     
@@ -23,21 +25,36 @@ public struct SQProfileView: View {
             VStack(alignment: .leading, spacing: 24) {
                 
                 VStack(alignment: .center, spacing: 0) {
-                    if let uiImage = UIImage(named: "ayame", in: .module, compatibleWith: nil) {
-                        Image(uiImage: uiImage)
+                    if let imageUrlString = viewModel.profilePicture, let url = URL(string: imageUrlString) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 200)
+                                    .frame(maxWidth: .infinity)
+                                    .clipped()
+                            case .failure:
+                                SQImage(image: "person", width: 100, height: 100)
+                                    .frame(height: 200)
+                                    .frame(maxWidth: .infinity)
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
+                    } else {
+                        Image(uiImage: UIImage(named: "ayame", in: .module, compatibleWith: nil)!)
                             .resizable()
                             .scaledToFill()
                             .frame(height: 200)
                             .frame(maxWidth: .infinity)
                             .clipped()
-                    } else {
-                        SQImage(image: "person", width: 100, height: 100)
-                            .frame(height: 200)
-                            .frame(maxWidth: .infinity)
                     }
                 }
                 .background(SQColor.muted.color)
-
                 
                 VStack(alignment: .leading, spacing: 24) {
                     VStack(alignment: .leading, spacing: 16) {
@@ -83,6 +100,8 @@ public struct SQProfileView: View {
                 }
                 .padding(.horizontal, 24)
             }
+            .redacted(reason: viewModel.isLoading ? .placeholder : [])
+            .animation(.easeInOut, value: viewModel.isLoading)
             .applyBackground()
             
             if viewModel.showDeleteAlert {
@@ -96,7 +115,7 @@ public struct SQProfileView: View {
         }
         .ignoresSafeArea(edges: .top)
         .onAppear {
-            viewModel.setCoordinator(coordinator)
+            viewModel.link(userManager: userManager, coordinator: coordinator)
         }
     }
 }

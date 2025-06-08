@@ -58,7 +58,7 @@ public struct SQRegistrationNamePage: View {
                 .onChange(of: isLastNameActive) { isActive in
                     lastNameStyle = SQTextFieldUtil.setTextFieldStyle(isActive: isLastNameActive, hasError: hasError)
                 }
-                .onChange(of: firstName) { _ in validateInput() }
+                .onChange(of: lastName) { _ in validateInput() }
 
                 if hasError {
                     SQText(

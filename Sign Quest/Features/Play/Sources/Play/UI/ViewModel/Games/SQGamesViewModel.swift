@@ -32,6 +32,7 @@ class SQGamesViewModel: ObservableObject {
     private var levelId: String
     private let networkService: SQPlayNetworkService = SQPlayNetworkService()
     private var coordinator: SQPlayCoordinator?
+    private var questions: [SQQuestion] = []
     
     // MARK: - Initialization
     init(userId: String, levelId: String) {
@@ -65,7 +66,7 @@ class SQGamesViewModel: ObservableObject {
     private func loadLevelData() async {
         currentLevel = await fetchLevel(levelId: levelId)
 
-        if let firstQuestion = currentLevel?.questions.first {
+        if let firstQuestion = questions.first {
             currentQuestion = firstQuestion
             updateProgress()
         }
@@ -74,11 +75,11 @@ class SQGamesViewModel: ObservableObject {
 
     // MARK: - Question Navigation
     func moveToNextQuestion() {
-        guard let level = currentLevel, !level.questions.isEmpty else { return }
+        guard let level = currentLevel, !questions.isEmpty else { return }
         
-        if currentQuestionIndex < level.questions.count - 1 {
+        if currentQuestionIndex < questions.count - 1 {
             currentQuestionIndex += 1
-            currentQuestion = level.questions[currentQuestionIndex]
+            currentQuestion = questions[currentQuestionIndex]
             selectedAnswerIndex = nil
             isAnswerCorrect = nil
             updateProgress()
@@ -130,20 +131,15 @@ class SQGamesViewModel: ObservableObject {
     
     // MARK: - Game Progress
     private func updateProgress() {
-        guard let level = currentLevel, !level.questions.isEmpty else { return }
-        progressPercentage = Double(currentQuestionIndex + 1) / Double(level.questions.count) * 100.0
+        guard let level = currentLevel, !questions.isEmpty else { return }
+        progressPercentage = Double(currentQuestionIndex + 1) / Double(questions.count) * 100.0
     }
 
     private func finishGame() {
         guard let session = gameSession, let level = currentLevel else { return }
         
         var updatedLevel = level
-        let isCompleted = session.score >= level.minScore
-        if isCompleted {
-            updatedLevel.status = .completed
-            updatedLevel.bestScore = max(session.score, level.bestScore ?? 0)
-        }
-        
+        let isCompleted = session.score >= level.minScore        
         saveGameResults(session: session, level: updatedLevel)
         
         SQPlayViewModel.shared.updateWithGameResults(
@@ -154,7 +150,7 @@ class SQGamesViewModel: ObservableObject {
     
     private func saveGameResults(session: SQGameSession, level: SQLevel) {
         // This would save the results to a repository
-        print("Game finished with score: \(session.score)/\(level.questions.count * 25)")
+        print("Game finished with score: \(session.score)/\(questions.count * 25)")
     }
     
     // MARK: - Helper Methods
@@ -164,13 +160,13 @@ class SQGamesViewModel: ObservableObject {
     
     func isLastQuestion() -> Bool {
         guard let level = currentLevel else { return true }
-        return currentQuestionIndex >= level.questions.count - 1
+        return currentQuestionIndex >= questions.count - 1
     }
 }
 
 extension SQGamesViewModel {
     @MainActor
-    func fetchLevel(levelId: String) async -> SQLevel {
+    func fetchLevel(levelId: String) async -> SQLevel? {
         return await networkService.fetchLevel(levelId: levelId)
     }
 }

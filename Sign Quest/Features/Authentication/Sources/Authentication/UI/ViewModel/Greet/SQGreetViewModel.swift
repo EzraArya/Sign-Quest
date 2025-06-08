@@ -17,7 +17,6 @@ class SQGreetViewModel: ObservableObject {
     
     @MainActor
     func navigateToHome() {
-        UserDefaultsManager.shared.isLoggedIn = true
         coordinator?.showMainFlow()
     }
 }

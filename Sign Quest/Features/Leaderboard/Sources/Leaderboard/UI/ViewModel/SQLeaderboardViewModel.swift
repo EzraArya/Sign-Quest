@@ -9,17 +9,32 @@ import SwiftUI
 import Combine
 import SignQuestModels
 
+@MainActor
 class SQLeaderboardViewModel: ObservableObject {
     @Published var leaderboardData: [SQUser] = []
-    private var networkService: SQLeaderboardNetworkService = SQLeaderboardNetworkService()
+    @Published var isLoading: Bool = true
     
-    init() {}
+    private var networkService: SQLeaderboardNetworkServiceProtocol
     
-    @MainActor
+    init(networkService: SQLeaderboardNetworkServiceProtocol = SQLeaderboardNetworkService()) {
+        self.networkService = networkService
+    }
+    
     func fetchLeaderboardData() async {
-        let data = await networkService.fetchLeaderboardData()
-        self.leaderboardData = data.sorted { (user1: SQUser, user2: SQUser) -> Bool in
-            return user1.totalScore > user2.totalScore
+        isLoading = true
+        do {
+            let data = try await networkService.fetchLeaderboardData()
+            
+            await MainActor.run {
+                self.leaderboardData = data
+                self.isLoading = false
+            }
+        } catch {
+            print("❌ Error fetching leaderboard data: \(error.localizedDescription)")
+            await MainActor.run {
+                self.leaderboardData = []
+                self.isLoading = false
+            }
         }
     }
 }

@@ -8,9 +8,11 @@
 import SwiftUI
 import SignQuestUI
 import SignQuestModels
+import SignQuestCore
 
 public struct SQHomeView: View {
     @EnvironmentObject var coordinator: SQHomeCoordinator
+    @EnvironmentObject var userManager: UserManager
     @StateObject var viewModel: SQHomeViewModel = SQHomeViewModel()
     
     public init() {}
@@ -20,7 +22,7 @@ public struct SQHomeView: View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
                     SQText(text: "Welcome,", font: .bold, color: .secondary, size: 24)
-                    SQText(text: viewModel.user.fullName, font: .bold, color: .primary, size: 24)
+                    SQText(text: userManager.firestoreUser?.fullName ?? "User", font: .bold, color: .primary, size: 24)
                 }
                 .padding(.top, 8)
                 
@@ -43,12 +45,14 @@ public struct SQHomeView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
         }
+        .redacted(reason: viewModel.isLoading ? .placeholder : [])
         .applyBackground()
         .onAppear {
             viewModel.setCoordinator(coordinator)
             Task {
-                await viewModel.loadUserData()
-                await viewModel.loadSections()
+                if viewModel.sections.isEmpty, let userID = userManager.authUser?.uid {
+                    await viewModel.loadContent(forUserID: userID)
+                }
             }
         }
     }

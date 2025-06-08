@@ -24,6 +24,15 @@ public struct SQLeaderboardView: View {
                     SQPodiumView(players: Array(viewModel.leaderboardData.prefix(3)))
                 }
                 
+                if viewModel.leaderboardData.count < 3 {
+                    VStack(alignment: .center) {
+                        Spacer()
+                        SQText(text: "No players yet", font: .medium, color: .text, size: 16)
+                            .padding(.top, 16)
+                        Spacer()
+                    }
+                }
+                
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(viewModel.leaderboardData.dropFirst(3).enumerated().map({ $0 }), id: \.element.id) { index, player in
                         HStack {
@@ -44,8 +53,9 @@ public struct SQLeaderboardView: View {
             }
             .padding()
         }
+        .redacted(reason: viewModel.isLoading ? .placeholder : [])
         .applyBackground()
-        .task {
+        .task { [viewModel] in
             await viewModel.fetchLeaderboardData()
         }
     }

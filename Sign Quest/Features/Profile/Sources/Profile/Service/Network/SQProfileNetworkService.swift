@@ -6,32 +6,27 @@
 //
 
 import SignQuestModels
+import FirebaseAuth
+import FirebaseFirestore
 
-protocol SQProfileNetworkServiceProtocol {
-    func fetchProfile(userId: String) async -> SQUser
-    func updateProfile(userId: String, profile: SQUser) async
+protocol SQProfileNetworkServiceProtocol: Sendable {
+    func updateProfile(userId: String, profile: SQUser) async throws
+    func updatePassword(password: String) async throws
 }
 
 struct SQProfileNetworkService: SQProfileNetworkServiceProtocol {
-    func fetchProfile(userId: String) async -> SQUser {
-        return addMockUser()
+    func updateProfile(userId: String, profile: SQUser) async throws {
+        let db = Firestore.firestore()
+        
+        let userDocRef = db.collection("users").document(userId)
+        try userDocRef.setData(from: profile, merge: true)
     }
     
-    func updateProfile(userId: String, profile: SQUser) async {
-        // MARK: TODO: Implement network call to update profile
-    }
-}
-
-extension SQProfileNetworkService {
-    func addMockUser() -> SQUser {
-        return SQUser(
-            firstName: "John",
-            lastName: "Doe",
-            email: "johndoe@gmail.com",
-            age: 18,
-            password: "pass",
-            currentLevel: "5",
-            totalScore: 20000
-        )
+    func updatePassword(password: String) async throws {
+        guard let user = Auth.auth().currentUser else {
+            throw NSError(domain: "User not authenticated", code: 401, userInfo: nil)
+        }
+        
+        try await user.updatePassword(to: password)
     }
 }

@@ -13,6 +13,7 @@ public enum SQQuestionType: String, Codable, Sendable {
 
 public struct SQQuestion: Codable, Identifiable, Hashable, Sendable {
     public let id: String
+    public let levelId: String
     public let type: SQQuestionType
     public let content: SQQuestionContent
     public let correctAnswerIndex: Int
@@ -21,8 +22,9 @@ public struct SQQuestion: Codable, Identifiable, Hashable, Sendable {
         return content.answers[correctAnswerIndex]
     }
     
-    public init(id: String, type: SQQuestionType, content: SQQuestionContent, correctAnswerIndex: Int) {
+    public init(id: String, levelId: String, type: SQQuestionType, content: SQQuestionContent, correctAnswerIndex: Int) {
         self.id = id
+        self.levelId = levelId
         self.type = type
         self.content = content
         self.correctAnswerIndex = correctAnswerIndex

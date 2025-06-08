@@ -18,7 +18,8 @@ let package = Package(
         .package(path: "../SignQuestUI"),
         .package(path: "../SignQuestInterfaces"),
         .package(path: "../SignQuestCore"),
-        .package(path: "../SignQuestModels")
+        .package(path: "../SignQuestModels"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.14.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -29,7 +30,8 @@ let package = Package(
                 "SignQuestUI",
                 "SignQuestInterfaces",
                 "SignQuestCore",
-                "SignQuestModels"
+                "SignQuestModels",
+                .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
             ],
         ),
         .testTarget(

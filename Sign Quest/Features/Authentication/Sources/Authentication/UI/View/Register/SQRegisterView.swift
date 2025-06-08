@@ -21,7 +21,7 @@ public struct SQRegisterView: View {
                     if viewModel.currentTab == 0 {
                         viewModel.navigateToOnboarding()
                     } else {
-                        viewModel.decrementProgress()
+                        viewModel.decrementTabProgress()
                     }
                 } label: {
                     Image(systemName: "chevron.left")
@@ -77,15 +77,15 @@ public struct SQRegisterView: View {
                     switch viewModel.currentTab {
                     case 0:
                         if viewModel.agePageValid {
-                            viewModel.incrementProgress()
+                            viewModel.incrementTabProgress()
                         }
                     case 1:
                         if viewModel.namePageValid {
-                            viewModel.incrementProgress()
+                            viewModel.incrementTabProgress()
                         }
                     case 2:
                         if viewModel.emailPageValid {
-                            viewModel.incrementProgress()
+                            viewModel.incrementTabProgress()
                         }
                     case 3:
                         if viewModel.passwordPageValid {
