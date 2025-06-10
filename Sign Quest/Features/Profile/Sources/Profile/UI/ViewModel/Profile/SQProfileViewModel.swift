@@ -134,6 +134,10 @@ class SQProfileViewModel: ObservableObject {
         coordinator?.push(.editProfile)
     }
     
+    func navigateToEditProfilePicture() {
+        coordinator?.push(.editProfilePicture)
+    }
+    
     func deleteAccount() {
         showDeleteAlert = false
         coordinator?.navigateToWelcome()
