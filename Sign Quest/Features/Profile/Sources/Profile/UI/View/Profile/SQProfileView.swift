@@ -55,6 +55,9 @@ public struct SQProfileView: View {
                     }
                 }
                 .background(SQColor.muted.color)
+                .onTapGesture {
+                    viewModel.navigateToEditProfilePicture()
+                }
                 
                 VStack(alignment: .leading, spacing: 24) {
                     VStack(alignment: .leading, spacing: 16) {
