@@ -26,7 +26,7 @@ public class CloudinaryService: @unchecked Sendable {
             apiKey: config.apiKey,
             apiSecret: config.apiSecret
         )
-        
+               
         self.cloudinary = CLDCloudinary(configuration: cldConfig)
     }
     
@@ -38,28 +38,24 @@ public class CloudinaryService: @unchecked Sendable {
             throw cloudinary == nil ? CloudinaryError.notConfigured : CloudinaryError.imageProcessing
         }
         
-        let params = CLDUploadRequestParams()
-        params.setPublicId("profile_\(userId)")
-        params.setOverwrite(true)
-        params.setFolder("profile_images")
-        
         return try await withCheckedThrowingContinuation { continuation in
             cloudinary.createUploader()
-                .upload(data: imageData, uploadPreset: "profile_images", params: params)
+                .upload(data: imageData, uploadPreset: "profile_picture")
                 .response { result, error in
-                    switch (result, error) {
-                    case (let result?, nil):
-                        if let secureUrl = result.secureUrl {
-                            continuation.resume(returning: secureUrl)
-                        } else {
-                            continuation.resume(throwing: CloudinaryError.uploadFailed)
-                        }
-                    case (_, let error?):
+                    if let error = error {
                         print("Upload failed: \(error.localizedDescription)")
                         continuation.resume(throwing: CloudinaryError.uploadFailed)
-                    case (nil, nil):
-                        continuation.resume(throwing: CloudinaryError.uploadFailed)
+                        return
                     }
+                    
+                    guard let secureUrl = result?.url else {
+                        print("Upload result missing secure URL")
+                        continuation.resume(throwing: CloudinaryError.uploadFailed)
+                        return
+                    }
+                    
+                    print("✅ Upload successful: \(secureUrl)")
+                    continuation.resume(returning: secureUrl)
                 }
         }
     }
