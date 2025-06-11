@@ -16,6 +16,7 @@ public class UserManager: ObservableObject {
     
     @Published public var authUser: FirebaseAuth.User?
     @Published public var firestoreUser: SQUser?
+    @Published public var profileImageUrl: String?
     
     private var authStateHandler: AuthStateDidChangeListenerHandle?
     private var firestoreListener: ListenerRegistration?
@@ -54,6 +55,7 @@ public class UserManager: ObservableObject {
                     self.firestoreListener?.remove()
                     self.firestoreListener = nil
                     self.firestoreUser = nil
+                    self.profileImageUrl = nil
                 }
             }
         }
@@ -71,12 +73,26 @@ public class UserManager: ObservableObject {
                 if let error = error {
                     print("❌ Error listening to user document: \(error)")
                     self.firestoreUser = nil
+                    self.profileImageUrl = nil
                     return
                 }
                 
                 if let document = document, document.exists {
                     do {
-                        self.firestoreUser = try document.data(as: SQUser.self)
+                        let newUser = try document.data(as: SQUser.self)
+                        
+                        // Check if image URL has changed
+                        let oldImageUrl = self.firestoreUser?.image
+                        let newImageUrl = newUser.image
+                        
+                        if oldImageUrl != newImageUrl {
+                            print("📸 Profile image updated:")
+                            print("   Old URL: \(oldImageUrl ?? "nil")")
+                            print("   New URL: \(newImageUrl ?? "nil")")
+                            self.profileImageUrl = newImageUrl
+                        }
+                        
+                        self.firestoreUser = newUser
                         print("✅ Firestore user data loaded")
                     } catch {
                         print("❌ Error decoding user data: \(error)")
@@ -84,8 +100,49 @@ public class UserManager: ObservableObject {
                 } else {
                     print("⚠️ User document does not exist")
                     self.firestoreUser = nil
+                    self.profileImageUrl = nil
                 }
             }
+        }
+    }
+    
+    // Method to update profile image URL in Firestore
+    public func updateProfileImage(url: String) async throws {
+        guard let uid = authUser?.uid else {
+            throw UserManagerError.notAuthenticated
+        }
+        
+        let db = Firestore.firestore()
+        
+        do {
+            try await db.collection("users").document(uid).updateData([
+                "image": url,
+                "updatedAt": FieldValue.serverTimestamp()
+            ])
+            print("✅ Profile image URL updated in Firestore: \(url)")
+        } catch {
+            print("❌ Failed to update profile image URL: \(error)")
+            throw UserManagerError.updateFailed(error)
+        }
+    }
+    
+    // Method to remove profile image
+    public func removeProfileImage() async throws {
+        guard let uid = authUser?.uid else {
+            throw UserManagerError.notAuthenticated
+        }
+        
+        let db = Firestore.firestore()
+        
+        do {
+            try await db.collection("users").document(uid).updateData([
+                "image": FieldValue.delete(),
+                "updatedAt": FieldValue.serverTimestamp()
+            ])
+            print("✅ Profile image removed from Firestore")
+        } catch {
+            print("❌ Failed to remove profile image: \(error)")
+            throw UserManagerError.updateFailed(error)
         }
     }
     
@@ -121,6 +178,21 @@ public class UserManager: ObservableObject {
             try await user.delete()
         } catch {
             print("Error deleting account: \(error)")
+        }
+    }
+}
+
+// MARK: - Error Handling
+public enum UserManagerError: Error, LocalizedError {
+    case notAuthenticated
+    case updateFailed(Error)
+    
+    public var errorDescription: String? {
+        switch self {
+        case .notAuthenticated:
+            return "User is not authenticated"
+        case .updateFailed(let error):
+            return "Update failed: \(error.localizedDescription)"
         }
     }
 }
