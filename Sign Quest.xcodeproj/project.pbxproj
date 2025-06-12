@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		630103A52DF5C38100C54595 /* Cloudinary in Frameworks */ = {isa = PBXBuildFile; productRef = 630103A42DF5C38100C54595 /* Cloudinary */; };
 		63158D912DBC1EB9009A1738 /* Play in Frameworks */ = {isa = PBXBuildFile; productRef = 63158D902DBC1EB9009A1738 /* Play */; };
 		634A202B2DBF88880055B257 /* YOLO in Frameworks */ = {isa = PBXBuildFile; productRef = 634A202A2DBF88880055B257 /* YOLO */; };
 		636810172DB7F470007A482C /* Dashboard in Frameworks */ = {isa = PBXBuildFile; productRef = 636810162DB7F470007A482C /* Dashboard */; };
@@ -18,6 +19,7 @@
 		63988B052DC2A29300548D82 /* SignQuestCore in Frameworks */ = {isa = PBXBuildFile; productRef = 63988B042DC2A29300548D82 /* SignQuestCore */; };
 		63AF74062DB9524300DED239 /* SignQuestUI in Frameworks */ = {isa = PBXBuildFile; productRef = 63AF74052DB9524300DED239 /* SignQuestUI */; };
 		63C07E9B2DBA23C100829842 /* SignQuestInterfaces in Frameworks */ = {isa = PBXBuildFile; productRef = 63C07E9A2DBA23C100829842 /* SignQuestInterfaces */; };
+		63C145A72DF9703B0020D802 /* Wormholy in Frameworks */ = {isa = PBXBuildFile; productRef = 63C145A62DF9703B0020D802 /* Wormholy */; };
 		63D75A102DF2DCBB00A270D1 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 63D75A0F2DF2DCBB00A270D1 /* FirebaseAI */; };
 		63D75A122DF2DCBB00A270D1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 63D75A112DF2DCBB00A270D1 /* FirebaseAnalytics */; };
 		63D75A142DF2DCBB00A270D1 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 63D75A132DF2DCBB00A270D1 /* FirebaseAnalyticsCore */; };
@@ -117,6 +119,7 @@
 				63D75A1A2DF3486D00A270D1 /* FirebaseAuth in Frameworks */,
 				63C07E9B2DBA23C100829842 /* SignQuestInterfaces in Frameworks */,
 				634A202B2DBF88880055B257 /* YOLO in Frameworks */,
+				630103A52DF5C38100C54595 /* Cloudinary in Frameworks */,
 				63D75A122DF2DCBB00A270D1 /* FirebaseAnalytics in Frameworks */,
 				63D75A1E2DF3486D00A270D1 /* FirebaseCore in Frameworks */,
 				63D75A142DF2DCBB00A270D1 /* FirebaseAnalyticsCore in Frameworks */,
@@ -127,6 +130,7 @@
 				63158D912DBC1EB9009A1738 /* Play in Frameworks */,
 				636810192DB7F470007A482C /* Home in Frameworks */,
 				63D75A162DF2DCBB00A270D1 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
+				63C145A72DF9703B0020D802 /* Wormholy in Frameworks */,
 				6368101B2DB7F470007A482C /* Leaderboard in Frameworks */,
 				63D75A202DF3486D00A270D1 /* FirebaseCrashlytics in Frameworks */,
 				63841BA12DB6965800692236 /* Onboarding in Frameworks */,
@@ -213,6 +217,8 @@
 				63D75A1D2DF3486D00A270D1 /* FirebaseCore */,
 				63D75A1F2DF3486D00A270D1 /* FirebaseCrashlytics */,
 				63D75A212DF3486D00A270D1 /* FirebaseFirestore */,
+				630103A42DF5C38100C54595 /* Cloudinary */,
+				63C145A62DF9703B0020D802 /* Wormholy */,
 			);
 			productName = "Sign Quest";
 			productReference = 63841B2D2DB689DA00692236 /* Sign Quest.app */;
@@ -305,6 +311,8 @@
 				634A20292DBF88880055B257 /* XCRemoteSwiftPackageReference "yolo-ios-app" */,
 				63988B032DC2A29300548D82 /* XCLocalSwiftPackageReference "Sign Quest/Core/Packages/SignQuestCore" */,
 				63D75A0E2DF2DCBB00A270D1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				630103A32DF5C38100C54595 /* XCRemoteSwiftPackageReference "cloudinary_ios" */,
+				63C145A52DF9703B0020D802 /* XCRemoteSwiftPackageReference "Wormholy" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63841B2E2DB689DA00692236 /* Products */;
@@ -708,12 +716,28 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		630103A32DF5C38100C54595 /* XCRemoteSwiftPackageReference "cloudinary_ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cloudinary/cloudinary_ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
 		634A20292DBF88880055B257 /* XCRemoteSwiftPackageReference "yolo-ios-app" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ultralytics/yolo-ios-app.git";
 			requirement = {
 				branch = main;
 				kind = branch;
+			};
+		};
+		63C145A52DF9703B0020D802 /* XCRemoteSwiftPackageReference "Wormholy" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pmusolino/Wormholy";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.1;
 			};
 		};
 		63D75A0E2DF2DCBB00A270D1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
@@ -727,6 +751,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		630103A42DF5C38100C54595 /* Cloudinary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 630103A32DF5C38100C54595 /* XCRemoteSwiftPackageReference "cloudinary_ios" */;
+			productName = Cloudinary;
+		};
 		63158D902DBC1EB9009A1738 /* Play */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Play;
@@ -771,6 +800,11 @@
 		63C07E9A2DBA23C100829842 /* SignQuestInterfaces */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SignQuestInterfaces;
+		};
+		63C145A62DF9703B0020D802 /* Wormholy */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 63C145A52DF9703B0020D802 /* XCRemoteSwiftPackageReference "Wormholy" */;
+			productName = Wormholy;
 		};
 		63D75A0F2DF2DCBB00A270D1 /* FirebaseAI */ = {
 			isa = XCSwiftPackageProductDependency;

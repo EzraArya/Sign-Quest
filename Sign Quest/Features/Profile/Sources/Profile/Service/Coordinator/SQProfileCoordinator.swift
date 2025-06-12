@@ -13,6 +13,7 @@ public enum SQProfileScreenType: Hashable, Identifiable {
     case profile
     case editProfile
     case editPassword
+    case editProfilePicture
     
     public var id: Self { return self }
 }
@@ -55,6 +56,8 @@ public class SQProfileCoordinator: NavigationCoordinatorProtocol {
             SQEditProfileView()
         case .editPassword:
             SQChangePasswordView()
+        case .editProfilePicture:
+            SQEditProfilePictureView()
         }
     }
 }

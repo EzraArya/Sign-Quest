@@ -1,5 +1,5 @@
 {
-  "originHash" : "6fd33451401c802225e9375cf60f0e9e3e60ebc8b591528c947d1a104aa7aa5e",
+  "originHash" : "9630b730fa3a0f8b305bbee7b5029b87955f0e7890c02830c5484551f4437a1b",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "cloudinary_ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cloudinary/cloudinary_ios.git",
+      "state" : {
+        "revision" : "215ea1db05e7f3c0212f3c9ad027cfd52c924545",
+        "version" : "5.1.0"
       }
     },
     {
@@ -125,6 +134,15 @@
       "state" : {
         "revision" : "102a647b573f60f73afdce5613a51d71349fe507",
         "version" : "1.30.0"
+      }
+    },
+    {
+      "identity" : "wormholy",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pmusolino/Wormholy",
+      "state" : {
+        "revision" : "54fdf4d01ccffc8276faf9be32d7d375a0321cab",
+        "version" : "2.1.1"
       }
     },
     {

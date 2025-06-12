@@ -10,6 +10,7 @@ import SignQuestCore
 
 class SQGreetViewModel: ObservableObject {
     private var coordinator: SQAuthenticationCoordinator?
+    private var userDefaultManager: UserDefaultsManager = UserDefaultsManager.shared
     
     func setCoordinator(_ coordinator: SQAuthenticationCoordinator) {
         self.coordinator = coordinator
@@ -17,6 +18,7 @@ class SQGreetViewModel: ObservableObject {
     
     @MainActor
     func navigateToHome() {
+        userDefaultManager.isOnboardingCompleted = true
         coordinator?.showMainFlow()
     }
 }
