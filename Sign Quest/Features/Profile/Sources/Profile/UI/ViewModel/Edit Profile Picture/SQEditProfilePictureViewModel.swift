@@ -10,7 +10,7 @@ import SignQuestCore
 import PhotosUI
 
 @MainActor
-class SQEditProfilePictureViewModel: ObservableObject {
+final class SQEditProfilePictureViewModel: ObservableObject {
     @Published var profilePicture: UIImage? = nil
     @Published var selectedImage: PhotosPickerItem? = nil
     @Published var isUploading = false
