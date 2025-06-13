@@ -10,6 +10,7 @@ import Combine
 import FirebaseFirestore
 import SignQuestModels
 import SignQuestUI
+import SignQuestCore
 
 struct ActivePopup {
     let sectionId: String
@@ -27,6 +28,7 @@ class SQHomeViewModel: ObservableObject {
     private var userProgress: [String: SQUserLevelData] = [:]
 
     private var coordinator: SQHomeCoordinator?
+    private var userManager: UserManager?
     private var networkService: SQHomeNetworkServiceProtocol
     private let db = Firestore.firestore()
 
@@ -34,28 +36,72 @@ class SQHomeViewModel: ObservableObject {
         self.networkService = networkService
     }
     
-    func setCoordinator(_ coordinator: SQHomeCoordinator) {
+    func link(_ coordinator: SQHomeCoordinator, userManager: UserManager) {
         self.coordinator = coordinator
+        self.userManager = userManager
     }
     
-    func loadContent(forUserID userID: String) async {
+    func loadContent() async {
+        guard let userID = userManager?.firestoreUser?.id else { return }
+        
+        guard !isLoading else { return }
+        
         isLoading = true
+        defer { isLoading = false }
+        
         do {
-            let fetchedSections = try await networkService.fetchSections()
-            let fetchedLevels = try await networkService.fetchLevels()
-            let fetchedProgress = try await networkService.fetchUserLevelData(for: userID)
+            async let sectionTask = networkService.fetchSections()
+            async let levelTask = networkService.fetchLevels()
+            async let progressTask = networkService.fetchUserLevelData(for: userID)
             
-            self.sections = fetchedSections.sorted(by: { $0.number < $1.number })
-            self.levelsBySection = Dictionary(grouping: fetchedLevels, by: { $0.sectionId })
-            self.userProgress = Dictionary(uniqueKeysWithValues: fetchedProgress.compactMap {
-                guard let levelId = $0.id else { return nil }
-                return (levelId, $0)
-            })
+            let (fetchedSections, fetchedLevels, fetchedProgress) = try await (sectionTask, levelTask, progressTask)
             
-            isLoading = false
+            let finalProgress: [SQUserLevelData]
+            let missingLevels = findMissingLevels(
+                allLevels: fetchedLevels,
+                existingProgress: fetchedProgress
+            )
+            
+            if !missingLevels.isEmpty {
+                try await initializeUserLevelData(for: userID, levels: missingLevels)
+                finalProgress = try await networkService.fetchUserLevelData(for: userID)
+            } else {
+                finalProgress = fetchedProgress
+            }
+            
+            await updateContentData(
+                sections: fetchedSections,
+                levels: fetchedLevels,
+                progress: finalProgress
+            )
         } catch {
             print("Error loading content: \(error.localizedDescription)")
         }
+    }
+    
+    private func findMissingLevels(
+        allLevels: [SQLevel],
+        existingProgress: [SQUserLevelData]
+    ) -> [SQLevel] {
+        let progressLevelIds = Set(existingProgress.compactMap { $0.id })
+        
+        return allLevels.filter { level in
+            guard let levelId = level.id else { return false }
+            return !progressLevelIds.contains(levelId)
+        }
+    }
+    
+    private func updateContentData(
+        sections: [SQSection],
+        levels: [SQLevel],
+        progress: [SQUserLevelData]
+    ) async {
+        self.sections = sections.sorted(by: { $0.number < $1.number })
+        self.levelsBySection = Dictionary(grouping: levels, by: { $0.sectionId })
+        self.userProgress = Dictionary(uniqueKeysWithValues: progress.compactMap { progressItem in
+            guard let levelId = progressItem.id else { return nil }
+            return (levelId, progressItem)
+        })
     }
 
     func levels(for section: SQSection) -> [SQLevel] {
@@ -92,5 +138,15 @@ class SQHomeViewModel: ObservableObject {
         if canNavigate(to: level) {
             coordinator?.navigateToGame()
         }
+    }
+    
+    func initializeUserLevelData(for userId: String, levels: [SQLevel]) async throws {
+        let levelDataItems = levels.enumerated().compactMap { index, level -> (String, SQUserLevelData)? in
+            guard let levelId = level.id else { return nil }
+            let initialData = SQUserLevelData(status: (index == 0) ? .available : .locked, bestScore: 0, lastAttempted: nil)
+            return (levelId, initialData)
+        }
+        
+        try await networkService.createUserLevelDataBatch(for: userId, levelDataItems: levelDataItems)
     }
 }
