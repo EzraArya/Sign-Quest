@@ -41,6 +41,7 @@ class SQHomeViewModel: ObservableObject {
         self.userManager = userManager
     }
     
+    @MainActor
     func loadContent() async {
         guard let userID = userManager?.firestoreUser?.id else { return }
         
@@ -91,6 +92,7 @@ class SQHomeViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     private func updateContentData(
         sections: [SQSection],
         levels: [SQLevel],
@@ -138,6 +140,7 @@ class SQHomeViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     func initializeUserLevelData(for userId: String, levels: [SQLevel], sections: [SQSection]) async throws {
         let sortedSections = sections.sorted(by: { $0.number < $1.number })
         let firstSectionId = sortedSections.first?.id
