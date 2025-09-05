@@ -11,7 +11,7 @@ import SignQuestUI
 
 public struct SQFinishView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
-    @StateObject private var sharedViewModel = SQPlayViewModel.shared
+    @EnvironmentObject private var viewModel: SQGamesViewModel
 
     public init() {}
 
@@ -19,7 +19,7 @@ public struct SQFinishView: View {
         VStack(spacing: 16) {
             SQText(text: "😆", font: .bold, color: .text, size: 76)
             SQText(
-                text: sharedViewModel.isLevelCompleted ? "Level Complete!" : "Level Attempted!",
+                text: viewModel.isLevelCompleted ? "Level Complete!" : "Level Attempted!",
                 font: .bold,
                 color: .text,
                 size: 24

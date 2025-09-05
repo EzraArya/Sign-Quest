@@ -90,7 +90,6 @@ public class SQPlayCoordinator: NavigationCoordinatorProtocol, SheetCoordinatorP
     
     @MainActor
     public func navigateToHome() {
-        SQPlayViewModel.shared.reset()
         appCoordinator?.startMainFlow()
     }
     
@@ -101,7 +100,7 @@ public class SQPlayCoordinator: NavigationCoordinatorProtocol, SheetCoordinatorP
         case .loading:
             SQLoadingView()
         case .games:
-            SQGamesView(levelId: levelId)
+            SQGamesView()
         case .finish:
             SQFinishView()
         case .score:

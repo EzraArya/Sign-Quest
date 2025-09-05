@@ -11,14 +11,9 @@ import SignQuestCore
 
 public struct SQGamesView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
-    @EnvironmentObject var userManager: UserManager
-    @StateObject private var viewModel: SQGamesViewModel
-    private let levelId: String
+    @EnvironmentObject private var viewModel: SQGamesViewModel
     
-    public init(levelId: String) {
-        self.levelId = levelId
-        _viewModel = StateObject(wrappedValue: SQGamesViewModel(levelId: levelId))
-    }
+    public init() {}
     
     public var body: some View {
         VStack {
@@ -89,7 +84,6 @@ public struct SQGamesView: View {
         .applyBackground()
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
-        .environmentObject(viewModel)
         .onChange(of: viewModel.currentQuestion) {
             viewModel.isVerified = false
             viewModel.gestureLabel = nil
@@ -105,9 +99,6 @@ public struct SQGamesView: View {
             if newImage == nil {
                 viewModel.selectedAnswerIndex = nil
             }
-        }
-        .onAppear {
-            viewModel.link(userManager: userManager, coordinator: coordinator)
         }
     }
 }

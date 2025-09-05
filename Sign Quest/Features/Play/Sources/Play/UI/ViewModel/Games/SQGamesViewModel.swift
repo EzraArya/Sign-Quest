@@ -29,6 +29,8 @@ class SQGamesViewModel: ObservableObject {
     @Published var isVerified: Bool = false
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var finalScore: Int = 0
+    @Published var isLevelCompleted: Bool = false
     
     // User information
     private var levelId: String
@@ -40,7 +42,6 @@ class SQGamesViewModel: ObservableObject {
     // MARK: - Initialization
     init(levelId: String) {
         self.levelId = levelId
-        // Don't call createGameSession() or loadData() here - wait for dependencies
     }
     
     func loadData() {
@@ -122,7 +123,7 @@ class SQGamesViewModel: ObservableObject {
         gameSession = session
         score = session.score
         
-        SQPlayViewModel.shared.updateScore(session.score)
+        updateScore(session.score)
     }
     
     // MARK: - Game Progress
@@ -136,7 +137,7 @@ class SQGamesViewModel: ObservableObject {
         let isCompleted = session.score >= level.minScore
         saveGameResults(session: session, level: level)
         
-        SQPlayViewModel.shared.updateWithGameResults(
+        updateWithGameResults(
             session: session,
             isCompleted: isCompleted
         )
@@ -178,6 +179,7 @@ extension SQGamesViewModel {
             isLoading = false
 
         } catch {
+            isLoading = false // Fix: Set loading to false on error
             errorMessage = "Failed to load content. Please try again."
             print("Error loading content: \(error)")
         }
@@ -238,5 +240,21 @@ extension SQGamesViewModel {
         }
         
         return .disabled
+    }
+}
+
+extension SQGamesViewModel {
+    func updateWithGameResults(session: SQGameSession, isCompleted: Bool) {
+        self.gameSession = session
+        self.finalScore = session.score
+        self.isLevelCompleted = isCompleted
+    }
+    
+    func updateScore(_ newScore: Int) {
+        self.finalScore = newScore
+    }
+    
+    func setLevelId(_ levelId: String) {
+        self.levelId = levelId
     }
 }

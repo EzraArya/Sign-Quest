@@ -7,10 +7,12 @@
 
 import SwiftUI
 import SignQuestUI
+import Firebase
+import SignQuestCore
 
 public struct SQLoadingView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
-    @StateObject private var sharedViewModel = SQPlayViewModel.shared
+    @EnvironmentObject private var viewModel: SQGamesViewModel
 
     public init() {}
 
@@ -21,10 +23,10 @@ public struct SQLoadingView: View {
         }
         .applyBackground()
         .task {
-            // Reset shared view model when starting a new game
-            sharedViewModel.reset()
+            while viewModel.isLoading {
+                try? await Task.sleep(nanoseconds: 400_000_000)
+            }
             
-            try? await Task.sleep(nanoseconds: 800_000_000)
             coordinator.push(.games)
         }
     }
