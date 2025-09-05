@@ -39,8 +39,8 @@ public class SQHomeCoordinator: NavigationCoordinatorProtocol {
     }
     
     @MainActor
-    public func navigateToGame() {
-        appCoordinator?.startGame()
+    public func navigateToGame(levelId: String) {
+        appCoordinator?.startGame(levelId: levelId)
     }
     
     @MainActor

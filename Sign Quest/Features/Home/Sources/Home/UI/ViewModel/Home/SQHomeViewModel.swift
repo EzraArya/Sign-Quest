@@ -22,7 +22,7 @@ class SQHomeViewModel: ObservableObject {
     
     @Published public var sections: [SQSection] = []
     @Published var activePopup: ActivePopup? = nil
-    @Published var isLoading: Bool = true
+    @Published var isLoading: Bool = false
     
     private var levelsBySection: [String: [SQLevel]] = [:]
     private var userProgress: [String: SQUserLevelData] = [:]
@@ -63,7 +63,7 @@ class SQHomeViewModel: ObservableObject {
             )
             
             if !missingLevels.isEmpty {
-                try await initializeUserLevelData(for: userID, levels: missingLevels)
+                try await initializeUserLevelData(for: userID, levels: missingLevels, sections: fetchedSections)
                 finalProgress = try await networkService.fetchUserLevelData(for: userID)
             } else {
                 finalProgress = fetchedProgress
@@ -117,11 +117,6 @@ class SQHomeViewModel: ObservableObject {
         return userProgress[levelId]?.status ?? .locked
     }
     
-    func bestScore(for level: SQLevel) -> Int? {
-        guard let levelId = level.id else { return nil }
-        return userProgress[levelId]?.bestScore
-    }
-    
     func getLevelButtonStyle(for level: SQLevel) -> SQLevelButtonStyle {
         switch self.status(for: level) {
         case .locked: return .locked
@@ -136,14 +131,28 @@ class SQHomeViewModel: ObservableObject {
     
     func navigateToGame(for level: SQLevel) {
         if canNavigate(to: level) {
-            coordinator?.navigateToGame()
+            guard let levelId = level.id else {
+                return
+            }
+            coordinator?.navigateToGame(levelId: levelId)
         }
     }
     
-    func initializeUserLevelData(for userId: String, levels: [SQLevel]) async throws {
-        let levelDataItems = levels.enumerated().compactMap { index, level -> (String, SQUserLevelData)? in
+    func initializeUserLevelData(for userId: String, levels: [SQLevel], sections: [SQSection]) async throws {
+        let sortedSections = sections.sorted(by: { $0.number < $1.number })
+        let firstSectionId = sortedSections.first?.id
+        
+        let levelDataItems = levels
+            .sorted(by: { $0.number < $1.number })
+            .compactMap { level -> (String, SQUserLevelData)? in
             guard let levelId = level.id else { return nil }
-            let initialData = SQUserLevelData(status: (index == 0) ? .available : .locked, bestScore: 0, lastAttempted: nil)
+            
+            let isFirstLevelOfFirstSection = level.number == 1 && level.sectionId == firstSectionId
+            let initialData = SQUserLevelData(
+                status: isFirstLevelOfFirstSection ? .available : .locked,
+                bestScore: 0,
+                lastAttempted: nil
+            )
             return (levelId, initialData)
         }
         

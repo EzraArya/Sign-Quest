@@ -19,6 +19,8 @@ public struct SQLevel: Codable, Identifiable, Hashable, @unchecked Sendable {
     public let sectionId: String
     public let number: Int
     public let minScore: Int
+    public let title: String
+    public let description: String
     
     public var displayName: String {
         return "\(number)"
