@@ -5,14 +5,16 @@
 //  Created by Ezra Arya Wijaya on 27/04/25.
 //
 
+import FirebaseFirestore
+
 public enum SQQuestionType: String, Codable, Sendable {
     case selectAlphabet
     case selectGesture
     case performGesture
 }
 
-public struct SQQuestion: Codable, Identifiable, Hashable, Sendable {
-    public let id: String
+public struct SQQuestion: Codable, Identifiable, Hashable, @unchecked Sendable {
+    @DocumentID public var id: String?
     public let levelId: String
     public let type: SQQuestionType
     public let content: SQQuestionContent
