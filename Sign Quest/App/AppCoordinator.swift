@@ -19,12 +19,12 @@ import SignQuestCore
 import FirebaseAuth
 import SignQuestUI
 
-public enum AppState {
+public enum AppState: Equatable {
     case onboarding
     case mainFlow
     case login
     case register
-    case play
+    case play(levelId: String)
     case greet
 }
 
@@ -85,9 +85,12 @@ public class AppCoordinator: AppCoordinatorProtocol {
                 
                 print("🔄 Auth state changed: \(user?.uid ?? "nil")")
                 
-                if self.appState == .onboarding || self.appState == .play {
+                switch self.appState {
+                case .onboarding, .play:
                     print("   Ignoring auth change during \(self.appState)")
                     return
+                default:
+                    break
                 }
                 
                 if user != nil {
@@ -129,8 +132,8 @@ public class AppCoordinator: AppCoordinatorProtocol {
         }
     }
     
-    public func startGame() {
-        appState = .play
+    public func startGame(levelId: String) {
+        appState = .play(levelId: levelId)
     }
     
     @ViewBuilder
@@ -152,12 +155,10 @@ public class AppCoordinator: AppCoordinatorProtocol {
                     appCoordinator: self
                 )
             )
-        case .play:
-            SQPlayCoordinatorView(appCoordinator: self)
-            
+        case .play(let levelId):
+            SQPlayCoordinatorView(appCoordinator: self, levelId: levelId)
         case .greet:
             SQAuthenticationCoordinatorView(appCoordinator: self, initialScreen: .greet)
-
         }
     }
 }
