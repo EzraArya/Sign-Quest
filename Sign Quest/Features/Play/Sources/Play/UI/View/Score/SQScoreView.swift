@@ -7,10 +7,11 @@
 
 import SwiftUI
 import SignQuestUI
+import Firebase
 
 public struct SQScoreView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
-    @StateObject private var sharedViewModel = SQPlayViewModel.shared
+    @EnvironmentObject private var viewModel: SQGamesViewModel
 
     public init() {}
     
@@ -20,20 +21,20 @@ public struct SQScoreView: View {
             
             VStack(alignment: .center, spacing: 8) {
                 SQText(
-                    text: sharedViewModel.isLevelCompleted ? "🥳" : "😊",
+                    text: viewModel.isLevelCompleted ? "🥳" : "😊",
                     font: .bold,
                     color: .text,
                     size: 76
                 )
                 SQText(text: "Your Score", font: .bold, color: .text, size: 24)
                 SQText(
-                    text: "\(sharedViewModel.finalScore)",
+                    text: "\(viewModel.finalScore)",
                     font: .bold,
-                    color: sharedViewModel.isLevelCompleted ? .complementary : .secondary,
+                    color: viewModel.isLevelCompleted ? .complementary : .secondary,
                     size: 32
                 )
                 
-                if sharedViewModel.isLevelCompleted {
+                if viewModel.isLevelCompleted {
                     SQText(
                         text: "Level Completed!",
                         font: .bold,

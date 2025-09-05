@@ -39,21 +39,14 @@ struct SectionView: View {
                     VStack(spacing: 4) {
                         SQLevelButton(
                             level: level.displayName,
-                            style: viewModel.getLevelButtonStyle(for: level), // This now works
+                            style: viewModel.getLevelButtonStyle(for: level),
+                            title: level.title,
+                            subtitle: level.description,
                             activePopup: sectionLevelBinding,
                             action: viewModel.canNavigate(to: level) ? {
                                 viewModel.navigateToGame(for: level)
                             } : nil
                         )
-
-                        if let bestScore = viewModel.bestScore(for: level) {
-                            SQText(
-                                text: "Best Score: \(bestScore)/\(level.minScore)",
-                                font: .medium,
-                                color: .secondary,
-                                size: 14
-                            )
-                        }
                     }
                 }
             }

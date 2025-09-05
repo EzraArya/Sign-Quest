@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import SignQuestModels
+import SignQuestCore
 import UIKit
 import SignQuestUI
 
@@ -26,57 +27,53 @@ class SQGamesViewModel: ObservableObject {
     @Published var gestureLabel: String?
     @Published var cameraImage: UIImage? = nil
     @Published var isVerified: Bool = false
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+    @Published var finalScore: Int = 0
+    @Published var isLevelCompleted: Bool = false
     
     // User information
-    private var userId: String
     private var levelId: String
     private let networkService: SQPlayNetworkService = SQPlayNetworkService()
     private var coordinator: SQPlayCoordinator?
+    private var userManager: UserManager?
     private var questions: [SQQuestion] = []
     
     // MARK: - Initialization
-    init(userId: String, levelId: String) {
-        self.userId = userId
+    init(levelId: String) {
         self.levelId = levelId
-        
-        createGameSession()
-        loadData()
     }
     
     func loadData() {
-        Task { @MainActor in
-            await loadLevelData()
+        Task {
+            await loadContent()
         }
     }
     
-    func setCoordinator(_ coordinator: SQPlayCoordinator) {
+    func link(userManager: UserManager, coordinator: SQPlayCoordinator) {
+        self.userManager = userManager
         self.coordinator = coordinator
+        
+        // Now that dependencies are linked, create session and load data
+        createGameSession()
+        loadData()
     }
 
     
     // MARK: - Game Session Management
     private func createGameSession() {
+        guard let userId = userManager?.firestoreUser?.id else {
+            return
+        }
+
         gameSession = SQGameSession(
             userId: userId,
             levelId: levelId
         )
     }
-    
-    @MainActor
-    private func loadLevelData() async {
-        currentLevel = await fetchLevel(levelId: levelId)
-
-        if let firstQuestion = questions.first {
-            currentQuestion = firstQuestion
-            updateProgress()
-        }
-    }
-
 
     // MARK: - Question Navigation
     func moveToNextQuestion() {
-        guard let level = currentLevel, !questions.isEmpty else { return }
-        
         if currentQuestionIndex < questions.count - 1 {
             currentQuestionIndex += 1
             currentQuestion = questions[currentQuestionIndex]
@@ -90,7 +87,7 @@ class SQGamesViewModel: ObservableObject {
     
     // MARK: - Answer Handling
     func verifyAnswer(detectedGesture: String? = nil, expectedLabel: String? = nil) {
-        guard let question = currentQuestion else { return }
+        guard let question = currentQuestion, let questionId = question.id else { return }
         let isCorrect: Bool
         
         switch question.type {
@@ -110,7 +107,7 @@ class SQGamesViewModel: ObservableObject {
         
         isAnswerCorrect = isCorrect
         
-        updateSessionScore(questionId: question.id, isCorrect: isCorrect)
+        updateSessionScore(questionId: questionId, isCorrect: isCorrect)
     }
 
     private func updateSessionScore(questionId: String, isCorrect: Bool) {
@@ -126,23 +123,21 @@ class SQGamesViewModel: ObservableObject {
         gameSession = session
         score = session.score
         
-        SQPlayViewModel.shared.updateScore(session.score)
+        updateScore(session.score)
     }
     
     // MARK: - Game Progress
     private func updateProgress() {
-        guard let level = currentLevel, !questions.isEmpty else { return }
         progressPercentage = Double(currentQuestionIndex + 1) / Double(questions.count) * 100.0
     }
 
     private func finishGame() {
         guard let session = gameSession, let level = currentLevel else { return }
         
-        var updatedLevel = level
-        let isCompleted = session.score >= level.minScore        
-        saveGameResults(session: session, level: updatedLevel)
+        let isCompleted = session.score >= level.minScore
+        saveGameResults(session: session, level: level)
         
-        SQPlayViewModel.shared.updateWithGameResults(
+        updateWithGameResults(
             session: session,
             isCompleted: isCompleted
         )
@@ -159,15 +154,35 @@ class SQGamesViewModel: ObservableObject {
     }
     
     func isLastQuestion() -> Bool {
-        guard let level = currentLevel else { return true }
         return currentQuestionIndex >= questions.count - 1
     }
 }
 
 extension SQGamesViewModel {
-    @MainActor
-    func fetchLevel(levelId: String) async -> SQLevel? {
-        return await networkService.fetchLevel(levelId: levelId)
+    func loadContent() async {
+        do {
+            isLoading = true
+            errorMessage = nil
+            
+            let fetchedLevel = try await networkService.fetchLevel(levelId: levelId)
+            let fetchedQuestions = try await networkService.fetchQuestions(levelId: levelId)
+            
+            self.currentLevel = fetchedLevel
+            self.questions = fetchedQuestions
+            
+            if let firstQuestion = questions.first {
+                self.currentQuestion = firstQuestion
+                self.currentQuestionIndex = 0
+                updateProgress()
+            }
+            
+            isLoading = false
+
+        } catch {
+            isLoading = false
+            errorMessage = "Failed to load content. Please try again."
+            print("Error loading content: \(error)")
+        }
     }
 }
 
@@ -225,5 +240,21 @@ extension SQGamesViewModel {
         }
         
         return .disabled
+    }
+}
+
+extension SQGamesViewModel {
+    func updateWithGameResults(session: SQGameSession, isCompleted: Bool) {
+        self.gameSession = session
+        self.finalScore = session.score
+        self.isLevelCompleted = isCompleted
+    }
+    
+    func updateScore(_ newScore: Int) {
+        self.finalScore = newScore
+    }
+    
+    func setLevelId(_ levelId: String) {
+        self.levelId = levelId
     }
 }

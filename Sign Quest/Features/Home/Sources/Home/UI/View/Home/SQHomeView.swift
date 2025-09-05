@@ -48,10 +48,10 @@ public struct SQHomeView: View {
         .redacted(reason: viewModel.isLoading ? .placeholder : [])
         .applyBackground()
         .onAppear {
-            viewModel.setCoordinator(coordinator)
+            viewModel.link(coordinator, userManager: userManager)
             Task {
-                if viewModel.sections.isEmpty, let userID = userManager.authUser?.uid {
-                    await viewModel.loadContent(forUserID: userID)
+                if viewModel.sections.isEmpty {
+                    await viewModel.loadContent()
                 }
             }
         }

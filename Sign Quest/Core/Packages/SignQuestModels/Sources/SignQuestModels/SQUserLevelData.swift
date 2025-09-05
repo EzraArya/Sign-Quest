@@ -21,4 +21,11 @@ public struct SQUserLevelData: Codable, Identifiable, @unchecked Sendable {
     
     @ServerTimestamp
     public var lastAttempted: Date?
+    
+    public init(id: String? = nil, status: SQUserLevelDataStatus, bestScore: Int, lastAttempted: Date? = nil) {
+        self.id = id
+        self.status = status
+        self.bestScore = bestScore
+        self.lastAttempted = lastAttempted
+    }
 }

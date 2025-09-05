@@ -7,14 +7,13 @@
 
 import SwiftUI
 import SignQuestUI
+import SignQuestCore
 
 public struct SQGamesView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
-    @StateObject private var viewModel: SQGamesViewModel
+    @EnvironmentObject private var viewModel: SQGamesViewModel
     
-    public init(userId: String = "demo-user", levelId: String = "demo-level") {
-        _viewModel = StateObject(wrappedValue: SQGamesViewModel(userId: userId, levelId: levelId))
-    }
+    public init() {}
     
     public var body: some View {
         VStack {
@@ -85,7 +84,6 @@ public struct SQGamesView: View {
         .applyBackground()
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
-        .environmentObject(viewModel)
         .onChange(of: viewModel.currentQuestion) {
             viewModel.isVerified = false
             viewModel.gestureLabel = nil
@@ -94,7 +92,7 @@ public struct SQGamesView: View {
         }
         .onChange(of: viewModel.gestureLabel) { _, newLabel in
             if newLabel != nil && viewModel.getQuestionType() == .performGesture {
-                viewModel.selectedAnswerIndex = 0  // Dummy index to enable button
+                viewModel.selectedAnswerIndex = 0
             }
         }
         .onChange(of: viewModel.cameraImage) { _, newImage in
@@ -102,9 +100,5 @@ public struct SQGamesView: View {
                 viewModel.selectedAnswerIndex = nil
             }
         }
-        .onAppear {
-            viewModel.setCoordinator(coordinator)
-        }
     }
 }
-

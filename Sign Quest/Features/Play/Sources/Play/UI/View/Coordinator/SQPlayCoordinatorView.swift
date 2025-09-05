@@ -8,14 +8,20 @@
 import SwiftUI
 import SignQuestUI
 import SignQuestInterfaces
+import SignQuestCore
 
 public struct SQPlayCoordinatorView: View {
     let appCoordinator: any AppCoordinatorProtocol
     @StateObject var coordinator: SQPlayCoordinator
+    @StateObject private var viewModel: SQGamesViewModel
+    @EnvironmentObject var userManager: UserManager
+    let levelId: String
 
-    public init(appCoordinator: any AppCoordinatorProtocol) {
+    public init(appCoordinator: any AppCoordinatorProtocol, levelId: String) {
         self.appCoordinator = appCoordinator
-        _coordinator = StateObject(wrappedValue: SQPlayCoordinator(appCoordinator: appCoordinator))
+        self.levelId = levelId
+        self._viewModel = StateObject(wrappedValue: SQGamesViewModel(levelId: levelId))
+        _coordinator = StateObject(wrappedValue: SQPlayCoordinator(appCoordinator: appCoordinator, levelId: levelId))
     }
     
     public var body: some View {
@@ -39,6 +45,10 @@ public struct SQPlayCoordinatorView: View {
                 }
         }
         .environmentObject(coordinator)
+        .environmentObject(viewModel)
+        .onAppear {
+            viewModel.link(userManager: userManager, coordinator: coordinator)
+        }
     }
     
     private func sheetDetents(for sheet: SQPlaySheetType) -> Set<PresentationDetent> {

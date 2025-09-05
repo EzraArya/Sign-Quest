@@ -18,7 +18,9 @@ let package = Package(
         .package(path: "../SignQuestUI"),
         .package(path: "../SignQuestInterfaces"),
         .package(path: "../SignQuestModels"),
+        .package(path: "../SignQuestCore"),
         .package(url: "https://github.com/ultralytics/yolo-ios-app.git", branch: "main"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.14.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -29,7 +31,9 @@ let package = Package(
                 "SignQuestUI",
                 "SignQuestInterfaces",
                 "SignQuestModels",
+                "SignQuestCore",
                 .product(name: "YOLO", package: "yolo-ios-app"),
+                .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
             ],
             resources: [
                 .copy("Model/yolo.mlmodel")
