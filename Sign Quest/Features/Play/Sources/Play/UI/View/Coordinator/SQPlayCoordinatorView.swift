@@ -8,14 +8,17 @@
 import SwiftUI
 import SignQuestUI
 import SignQuestInterfaces
+import SignQuestCore
 
 public struct SQPlayCoordinatorView: View {
     let appCoordinator: any AppCoordinatorProtocol
     @StateObject var coordinator: SQPlayCoordinator
+    let levelId: String
 
-    public init(appCoordinator: any AppCoordinatorProtocol) {
+    public init(appCoordinator: any AppCoordinatorProtocol, levelId: String) {
         self.appCoordinator = appCoordinator
-        _coordinator = StateObject(wrappedValue: SQPlayCoordinator(appCoordinator: appCoordinator))
+        self.levelId = levelId
+        _coordinator = StateObject(wrappedValue: SQPlayCoordinator(appCoordinator: appCoordinator, levelId: levelId))
     }
     
     public var body: some View {

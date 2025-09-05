@@ -57,9 +57,11 @@ public class SQPlayCoordinator: NavigationCoordinatorProtocol, SheetCoordinatorP
     @Published public var sheet: SQPlaySheetType?
     @Published public var path: NavigationPath = NavigationPath()
     private weak var appCoordinator: (any AppCoordinatorProtocol)?
+    private let levelId: String
     
-    public init(appCoordinator: (any AppCoordinatorProtocol)? = nil) {
+    public init(appCoordinator: (any AppCoordinatorProtocol)? = nil, levelId: String) {
         self.appCoordinator = appCoordinator
+        self.levelId = levelId
     }
     
     
@@ -99,7 +101,7 @@ public class SQPlayCoordinator: NavigationCoordinatorProtocol, SheetCoordinatorP
         case .loading:
             SQLoadingView()
         case .games:
-            SQGamesView()
+            SQGamesView(levelId: levelId)
         case .finish:
             SQFinishView()
         case .score:
