@@ -179,7 +179,6 @@ extension SQGamesViewModel {
             isLoading = false
 
         } catch {
-            isLoading = false // Fix: Set loading to false on error
             errorMessage = "Failed to load content. Please try again."
             print("Error loading content: \(error)")
         }
