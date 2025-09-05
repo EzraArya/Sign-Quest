@@ -9,6 +9,7 @@ import SwiftUI
 import SignQuestUI
 import Firebase
 import SignQuestCore
+import Combine
 
 public struct SQLoadingView: View {
     @EnvironmentObject var coordinator: SQPlayCoordinator
@@ -22,12 +23,10 @@ public struct SQLoadingView: View {
             SQText(text: "Loading Game!", font: .bold, color: .text, size: 24)
         }
         .applyBackground()
-        .task {
-            while viewModel.isLoading {
-                try? await Task.sleep(nanoseconds: 400_000_000)
+        .onReceive(viewModel.$isLoading) { isLoading in
+            if !isLoading && viewModel.currentQuestion != nil {
+                coordinator.push(.games)
             }
-            
-            coordinator.push(.games)
         }
     }
 }
