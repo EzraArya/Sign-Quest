@@ -1,0 +1,275 @@
+name: Copilot Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+      - master
+      - develop
+      - feat/*
+
+    paths:
+      - "**/*.swift"
+      - "**/*.m"
+      - "**/*.h"
+      - "**/*.storyboard"
+      - "**/*.xib"
+      - "**/*.plist"
+      - "**/*.xcconfig"
+      - "**/Package.swift"
+      - "**/Podfile"
+      - "**/*.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  copilot-review:
+    if: |
+      github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-copilot-review')
+
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Dismiss old Copilot bot reviews
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPO="${{ github.repository }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+
+          # 1. Minimize old inline review comments (hide as outdated)
+          echo "=== Hiding inline review comments ==="
+          gh api "repos/$REPO/pulls/$PR_NUMBER/comments" \
+            --jq '.[] | select(.user.login == "copilot[bot]" or .user.login == "github-actions[bot]") | .node_id' | \
+          while read -r node_id; do
+            if [ -n "$node_id" ]; then
+              echo "Hiding: $node_id"
+              echo '{"query": "mutation { minimizeComment(input: {subjectId: \"'"$node_id"'\", classifier: OUTDATED}) { minimizedComment { isMinimized } } }"}' \
+                | gh api graphql --input -
+            fi
+          done
+
+          # 2. Minimize old issue comments (main thread comments)
+          echo "=== Hiding issue comments ==="
+          gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
+            --jq '.[] | select(.user.login == "copilot[bot]" or .user.login == "github-actions[bot]") | .node_id' | \
+          while read -r node_id; do
+            if [ -n "$node_id" ]; then
+              echo "Hiding: $node_id"
+              echo '{"query": "mutation { minimizeComment(input: {subjectId: \"'"$node_id"'\", classifier: OUTDATED}) { minimizedComment { isMinimized } } }"}' \
+                | gh api graphql --input -
+            fi
+          done
+
+          # 3. Dismiss CHANGES_REQUESTED reviews (removes red badge)
+          echo "=== Dismissing CHANGES_REQUESTED reviews ==="
+          gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+            --jq '.[] | select((.user.login == "copilot[bot]" or .user.login == "github-actions[bot]") and .state == "CHANGES_REQUESTED") | .node_id' | \
+          while read -r node_id; do
+            if [ -n "$node_id" ]; then
+              echo "Dismissing: $node_id"
+              echo '{"query": "mutation { dismissPullRequestReview(input: {pullRequestReviewId: \"'"$node_id"'\", message: \"Superseded by new review\"}) { pullRequestReview { state } } }"}' \
+                | gh api graphql --input -
+            fi
+          done
+
+          # 4. Minimize all old reviews (COMMENTED and DISMISSED)
+          echo "=== Hiding old reviews ==="
+          gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+            --jq '.[] | select((.user.login == "copilot[bot]" or .user.login == "github-actions[bot]") and (.state == "COMMENTED" or .state == "DISMISSED")) | .node_id' | \
+          while read -r node_id; do
+            if [ -n "$node_id" ]; then
+              echo "Hiding: $node_id"
+              echo '{"query": "mutation { minimizeComment(input: {subjectId: \"'"$node_id"'\", classifier: OUTDATED}) { minimizedComment { isMinimized } } }"}' \
+                | gh api graphql --input -
+            fi
+          done
+
+      - name: Run Copilot Code Review
+        id: copilot-review
+        uses: github/copilot-code-review-action@v1
+        with:
+          model: gpt-4o
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR: ${{ github.event.pull_request.number }}
+
+            ## Context
+            This is an iOS Sign Language learning game project (Sign Quest) built with:
+            - SwiftUI (iOS 16+) and Swift 6.1
+            - Firebase Firestore & Authentication
+            - YOLO (Ultralytics) for ML gesture detection
+            - MVVM + Coordinator architecture
+            - SPM Modular Packages
+
+            ## Steps
+            1. `gh pr view $PR --json title,body` - Get PR context
+            2. `gh pr diff $PR` - Get diff
+            3. Analyze issues (HIGH SIGNAL ONLY - see Issue Categorization)
+            4. Validate issues (see False Positive Filtering)
+            5. Submit review with `gh api` (see Output section)
+
+            ## Issue Categorization (HIGH SIGNAL ONLY)
+
+            ### ✅ FLAG These - Objective Issues Only:
+            **🛑 Bugs** (Definite runtime issues):
+            - Force unwrap: `!` on optional API/DB data, implicitly unwrapped optionals from network
+            - Index bounds: accessing arrays without bounds check
+            - Retain cycles: missing `[weak self]` or `[unowned self]` in escaping closures
+            - Lifecycle: accessing IBOutlets after view deallocation, Task not cancelled on deinit
+            - Type safety: `as!` force cast without validation, invalid Codable assumptions
+            - Logic errors: incorrect state updates, race conditions with shared mutable state
+            - Security: hardcoded secrets, insecure Keychain usage, missing certificate pinning
+            - Memory leaks: strong reference cycles, NotificationCenter observers not removed
+            - Firebase: missing error handling on Firestore calls, unsubscribed listeners
+
+            **⚠️ Risks** (Likely issues in edge cases):
+            - async/await: Task without proper cancellation handling, actor isolation violations
+            - Combine: sink without storing AnyCancellable, missing error handling in pipelines
+            - SwiftUI: side-effects in body (network calls), @State in wrong scope, missing @MainActor
+            - UIKit: main thread violations (UI updates from background), dealloc during animation
+            - Threading: main thread blocking, DispatchQueue.main.sync from main thread (deadlock)
+            - State management: @Published without @MainActor, ObservableObject retain cycles
+            - Core Data: accessing managed objects across threads, missing save context
+            - Camera/ML: improper AVCaptureSession handling, YOLO model memory issues
+
+            **MVVM Violations**:
+            - Views containing business logic (network calls, data processing in ViewController/View)
+            - ViewModels directly manipulating UI elements
+            - Missing separation between View and ViewModel
+            - Error handling violations (try! or try? without proper handling)
+            - Coordinator pattern violations
+
+            ### ❌ DO NOT FLAG - Auto-Filter These:
+            - Style/naming/formatting (SwiftLint handles this)
+            - Documentation/comments/logging
+            - Test coverage suggestions
+            - Code organization preferences
+            - Performance "suggestions" without proof
+            - Issues already in pre-existing code (check git blame)
+            - Issues with swiftlint:disable comments (already acknowledged)
+            - Subjective concerns ("might be", "could cause", "potentially")
+            - Anything a senior iOS engineer wouldn't flag in PR
+
+            ## False Positive Filtering
+
+            **Before flagging ANY issue, validate:**
+            1. **Not pre-existing**: Check if code existed before this PR (use git diff carefully)
+            2. **Actually incorrect**: Not just different than you'd write it - objectively wrong
+            3. **Will cause real issues**: Not theoretical - will actually crash/leak/deadlock
+            4. **Not already handled**: No existing nil checks, guard statements, or error handling elsewhere
+            5. **Not explicitly ignored**: No swiftlint suppression or TODO comments acknowledging it
+            6. **Worth human attention**: Senior iOS engineer would definitely flag this
+
+            **High-confidence validation required**: If you're not 95%+ confident it's a real issue, DO NOT FLAG IT.
+
+            ## Suggested Fix Format
+
+            **Small fixes (≤5 lines changed):**
+            Include complete, committable fix in comment:
+            ```suggestion
+            guard let user = userResponse?.data else {
+                return .failure(.noUserData)
+            }
+            ```
+            **CRITICAL**: Author must be able to click "Commit suggestion" without edits.
+
+            **Large fixes (6+ lines, structural changes, multiple files):**
+            DO NOT use suggestion blocks. Instead provide:
+            1. Clear issue description with file:line
+            2. High-level fix explanation
+            3. Copyable fix prompt:
+            ```
+            Fix SearchViewModel.swift:88: Add [weak self] capture in Task closure to prevent retain cycle. Return early if self is nil.
+            ```
+
+            **Brief comments (no fix needed):**
+            Just describe the issue clearly, cite specific line, no prefix.
+
+            ## Focus Areas (In Priority Order)
+            1. **Crashes** (force unwrap, bounds, EXC_BAD_ACCESS, fatalError paths)
+            2. **Memory** (retain cycles, leaks, zombie objects)
+            3. **Threading** (main thread UI, deadlocks, data races)
+            4. **async/await & Combine** (Task leaks, missing cancellation, AnyCancellable)
+            5. **SwiftUI** (side-effects in body, improper state management)
+            6. **Firebase** (listener leaks, missing error handling, auth state)
+            7. **ML/Camera** (YOLO model handling, AVCaptureSession lifecycle)
+            8. **Logic bugs** (state sync, race conditions)
+            9. **Security** (Keychain, certificates, injection)
+
+            ## Output Format
+
+            **NO issues found:**
+            ```
+            gh api repos/$REPO/pulls/$PR/reviews -X POST \
+              -f event="APPROVE" \
+              -f body="## Verdict: ✅ APPROVED
+
+            **Summary**: No significant issues found. Checked for crashes, memory leaks, threading safety, async/await patterns, Firebase handling, and SwiftUI best practices.
+
+            🛑 **Bugs**: None
+            ⚠️ **Risks**: None"
+            ```
+
+            **Issues found:**
+            ```
+            gh api repos/$REPO/pulls/$PR/reviews -X POST \
+              -f event="<REQUEST_CHANGES|COMMENT>" \
+              -f body="<BODY>" \
+              -f 'comments=[<INLINE_COMMENTS>]'
+            ```
+
+            **INLINE_COMMENTS format (one per issue):**
+            ```json
+            {
+              "path": "relative/path/to/file.swift",
+              "line": 42,
+              "side": "RIGHT",
+              "body": "🛑 Potential crash: Force unwrap `user!` on optional API response.\n\n```suggestion\nguard let user = userResponse?.user else {\n    return .failure(.userNotFound)\n}\n```"
+            }
+            ```
+
+            **BODY format:**
+            ```
+            ## Verdict: {🛑 CHANGES REQUESTED | ⚠️ CAUTION}
+            **Summary**: {1-2 sentences highlighting most critical issues}
+
+            🛑 **Bugs** ({count}):
+            - `file.swift:line` - {specific issue} - {specific fix}
+
+            ⚠️ **Risks** ({count}):
+            - `file.swift:line` - {specific issue}
+
+            <details><summary>Impact Assessment</summary>
+
+            | Area | Status | Notes |
+            |------|--------|-------|
+            | Home/Levels | ✅/⚠️/❌ | {specific impact or "No impact"} |
+            | Play/Games | ✅/⚠️/❌ | {specific impact or "No impact"} |
+            | Auth/Profile | ✅/⚠️/❌ | {specific impact or "No impact"} |
+            | ML/Camera | ✅/⚠️/❌ | {specific impact or "No impact"} |
+
+            </details>
+            ```
+
+            ## Review Principles
+            - **High signal only**: Only objective, high-confidence issues
+            - **One comment per issue**: No duplicates
+            - **Be specific**: Quote exact code, give exact fixes
+            - **Be objective**: Facts only, no opinions or "suggestions"
+            - **Complete suggestions**: Committable without edits (≤5 lines only)
